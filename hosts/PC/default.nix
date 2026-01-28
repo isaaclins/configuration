@@ -7,7 +7,7 @@
 # Purpose: Desktop workstation with gaming capabilities.                       #
 # ============================================================================ #
 # DEPLOYMENT:                                                                  #
-# sudo nixos-rebuild switch --flake ~/github/configuration#PC                  #
+# sudo nixos-rebuild switch --flake ~/.config/nix/configuration#PC                  #
 # ============================================================================ #
 
 { 

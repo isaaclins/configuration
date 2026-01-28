@@ -7,7 +7,7 @@
 # Purpose: Primary development workstation with full desktop software.         #
 # ============================================================================ #
 # DEPLOYMENT:                                                                  #
-# darwin-rebuild switch --flake ~/github/configuration#Isaacs-MacBook-Pro      #
+# darwin-rebuild switch --flake ~/.config/nix/configuration#Isaacs-MacBook-Pro      #
 # ============================================================================ #
 
 { 

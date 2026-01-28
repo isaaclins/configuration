@@ -7,7 +7,7 @@
 # Purpose: Headless server for hosting services, containers, etc.              #
 # ============================================================================ #
 # DEPLOYMENT:                                                                  #
-# sudo nixos-rebuild switch --flake ~/github/configuration#homelab             #
+# sudo nixos-rebuild switch --flake ~/.config/nix/configuration#homelab             #
 # ============================================================================ #
 
 { 
