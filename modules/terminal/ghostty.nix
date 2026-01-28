@@ -33,7 +33,7 @@
     # ------------------------------------------------------------------------ #
     # Turn on Ghostty (install + config) for this host.                         #
     # ------------------------------------------------------------------------ #
-    enable = mkEnableOption "Ghostty terminal with shared user config";
+    enable = lib.mkEnableOption "Ghostty terminal with shared user config";
 
     # ------------------------------------------------------------------------ #
     # ghostty.user                                                              #
