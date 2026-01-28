@@ -94,17 +94,16 @@ in
     # ======================================================================== #
     # HOME MANAGER USER CONFIGURATION (macOS + NixOS)                          #
     # ======================================================================== #
-    # Wire in the shared Home Manager module that writes                       #
-    # ~/.config/ghostty/config for the selected user.                          #
+    # Directly manage ~/.config/ghostty/config for the selected user by        #
+    # symlinking the tracked ghostty-config file from this repository.         #
     #                                                                           #
     # NOTE: This assumes that Home Manager is imported in your system          #
     # configuration (as done in flake.nix for this repo), so the               #
     # `home-manager.users` option namespace exists.                            #
     # ======================================================================== #
     {
-      home-manager.users.${config.ghostty.user}.imports = [
-        ./ghostty-home.nix # Shared Ghostty Home Manager module (background red)
-      ];
+      home-manager.users.${config.ghostty.user}.home.file.".config/ghostty/config".source =
+        ./ghostty-config; # Symlink ~/.config/ghostty/config to this file
     }
   ]);
 
