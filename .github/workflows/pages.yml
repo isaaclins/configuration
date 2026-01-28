@@ -27,8 +27,8 @@ jobs:
       - name: Prepare Pages content
         run: |
           mkdir -p public
-          # Copy the bootstrap script to the root of the Pages site as "setup"
-          cp scripts/bootstrap.sh public/setup
+          # Copy the bootstrap script to the root of the Pages site 
+          cp scripts/bootstrap.sh public
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
@@ -51,4 +51,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
