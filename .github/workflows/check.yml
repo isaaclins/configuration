@@ -87,6 +87,8 @@ jobs:
       # ---------------------------------------------------------------------- #
       - name: Setup Nix cache
         uses: DeterminateSystems/magic-nix-cache-action@main # Automatic Nix caching
+        with:
+          use-flakehub: false # Disable FlakeHub Cache to avoid auth warnings
 
       # ---------------------------------------------------------------------- #
       # Step 4: Run Flake Check                                                #
@@ -129,6 +131,8 @@ jobs:
       # ---------------------------------------------------------------------- #
       - name: Setup Nix cache
         uses: DeterminateSystems/magic-nix-cache-action@main # Enable caching
+        with:
+          use-flakehub: false # Disable FlakeHub Cache to avoid auth warnings
 
       # ---------------------------------------------------------------------- #
       # Step 4: Evaluate Darwin Configuration (macOS)                          #
