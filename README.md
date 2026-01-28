@@ -104,6 +104,9 @@ configurations/
 ### macOS (Isaacs-MacBook-Pro)
 
 ```bash
+# Clone the configuration repository (first time only)
+git clone https://github.com/isaaclins/configuration.git ~/github/configuration
+
 # Navigate to the configuration directory
 cd ~/github/configuration
 
@@ -115,6 +118,9 @@ darwin-rebuild switch --flake .#Isaacs-MacBook-Pro
 ### Linux Server (homelab)
 
 ```bash
+# Clone the configuration repository (first time only)
+git clone https://github.com/isaaclins/configuration.git ~/github/configuration
+
 # Navigate to the configuration directory
 cd ~/github/configuration
 
@@ -126,6 +132,9 @@ sudo nixos-rebuild switch --flake .#homelab
 ### Linux Desktop (PC)
 
 ```bash
+# Clone the configuration repository (first time only)
+git clone https://github.com/isaaclins/configuration.git ~/github/configuration
+
 # Navigate to the configuration directory
 cd ~/github/configuration
 
