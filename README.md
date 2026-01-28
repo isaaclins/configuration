@@ -81,9 +81,7 @@ configurations/
 3. Clone this repo and apply the macOS configuration (first time):
 
    ```bash
-   git clone https://github.com/isaaclins/configuration.git ~/.config/nix/configuration
-   cd ~/.config/nix/configuration
-   sudo nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake .#Isaacs-MacBook-Pro
+   git clone https://github.com/isaaclins/configuration.git ~/.config/nix/configuration && cd ~/.config/nix/configuration &&  sudo nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake .#Isaacs-MacBook-Pro
    ```
 
 4. Later: update and re-apply:
