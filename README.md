@@ -29,11 +29,7 @@ If you just want to install one of the provided machine profiles and keep it up 
      mkdir -p ~/.config/nix
      ```
 
-     If you haven’t installed `nix-darwin` yet, do so once:
-
-     ```bash
-     sudo nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake github:LnL7/nix-darwin
-     ```
+     The bootstrap script (step 2) will clone this repo and apply this repo's macOS profile (`Isaacs-MacBook-Pro`) via nix-darwin. No separate "install nix-darwin" step is needed. If you prefer to do it manually, see [Prerequisites (macOS)](#for-macos-nix-darwin) and [Deployment (manual)](#deployment-manual-without-bootstrap-script).
 
    - On **NixOS**:
      Ensure flakes are enabled in `/etc/nixos/configuration.nix`:
@@ -120,10 +116,19 @@ configurations/
    mkdir -p ~/.config/nix && echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
    ```
 
-3. **Install nix-darwin** (first time only):
+3. **Apply this repo's macOS configuration** (first time only):
+
+   Use this repo's flake and an explicit host profile — do **not** use `github:LnL7/nix-darwin` as the flake; that is the nix-darwin framework only and does not define a configuration for your machine (you will get an error about a missing `darwinConfigurations.<your-hostname>.system`).
+
+   Clone this repo, then run (from inside the repo, or use the full path):
+
    ```bash
-   nix run nix-darwin -- switch --flake github:LnL7/nix-darwin
+   git clone https://github.com/isaaclins/configuration.git ~/.config/nix/configuration
+   cd ~/.config/nix/configuration
+   sudo nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake .#Isaacs-MacBook-Pro
    ```
+
+   Use `Isaacs-MacBook-Pro` for the MacBook profile. System activation requires `sudo`; when using `nix run` with sudo you must pass `--extra-experimental-features "nix-command flakes"` so Nix has flakes enabled in the root environment.
 
 ### For NixOS
 
@@ -443,6 +448,31 @@ If you see an error about flakes being experimental:
 ```bash
 # Ensure flakes are enabled in your Nix configuration
 echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
+```
+
+When using `sudo nix run nix-darwin`, root may not have flakes enabled; add:
+
+```bash
+sudo nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake <path>#<host>
+```
+
+### "does not provide attribute darwinConfigurations.&lt;hostname&gt;.system"
+
+This happens if you use `--flake github:LnL7/nix-darwin`. That flake is the nix-darwin _framework_ only; it does not define configurations for your machine. Use **this** repo and an explicit host profile instead:
+
+```bash
+# From this repo (after cloning):
+sudo nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake .#Isaacs-MacBook-Pro
+```
+
+Or run the [bootstrap script](#quick-start-one-command-bootstrap), which uses this repo and the correct profile.
+
+### "system activation must now be run as root" (macOS)
+
+nix-darwin system activation requires root. Run the command with `sudo`:
+
+```bash
+sudo nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake .#Isaacs-MacBook-Pro
 ```
 
 ### Permission denied on NixOS

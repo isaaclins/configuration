@@ -45,11 +45,11 @@ case "$OS" in
 
     if command -v darwin-rebuild >/dev/null 2>&1; then
       echo "==> Found 'darwin-rebuild', will use it to apply the configuration."
-      REBUILD_CMD=(darwin-rebuild switch --flake "$CONFIG_DIR#$HOST")
+      REBUILD_CMD=(sudo darwin-rebuild switch --flake "$CONFIG_DIR#$HOST")
     else
       echo "!! 'darwin-rebuild' not found. Using nix-darwin bootstrap via 'nix run'."
       echo "   (This assumes you have Nix installed with flakes enabled.)"
-      REBUILD_CMD=(nix run nix-darwin -- switch --flake "$CONFIG_DIR#$HOST")
+      REBUILD_CMD=(sudo nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake "$CONFIG_DIR#$HOST")
     fi
     ;;
 
