@@ -59,8 +59,15 @@ if ! grep -q 'substituters' "$NIX_CONF_FILE" 2>/dev/null; then
 fi
 
 # Step 2c (macOS only): Enable binary caches in /etc/nix/nix.conf so sudo/daemon uses them
-if [ "$OS" = "Darwin" ] && [ -d /etc/nix ]; then
-  if ! grep -q 'substituters' /etc/nix/nix.conf 2>/dev/null; then
+if [ "$OS" = "Darwin" ]; then
+  # Create /etc/nix if it doesn't exist
+  if [ ! -d /etc/nix ]; then
+    echo "==> Creating /etc/nix directory"
+    sudo mkdir -p /etc/nix
+  fi
+  
+  # Add binary caches to system config if not already present
+  if [ ! -f /etc/nix/nix.conf ] || ! grep -q 'substituters' /etc/nix/nix.conf 2>/dev/null; then
     echo "==> Enabling binary caches in /etc/nix/nix.conf (so sudo/daemon use cache)"
     sudo tee -a /etc/nix/nix.conf << 'NIXCACHE' >/dev/null
 
@@ -68,6 +75,9 @@ if [ "$OS" = "Darwin" ] && [ -d /etc/nix ]; then
 substituters = https://cache.nixos.org https://nix-community.cachix.org
 trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
 NIXCACHE
+    # Restart nix-daemon so it picks up the new config
+    echo "==> Restarting nix-daemon to apply cache settings"
+    sudo launchctl kickstart -k system/org.nixos.nix-daemon 2>/dev/null || true
   fi
 fi
 
