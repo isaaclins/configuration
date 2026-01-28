@@ -19,13 +19,13 @@ This repository contains declarative system configurations for multiple machines
 
 ## Quick start (bootstrap script)
 
-Install Nix and enable flakes first (see [macOS](#macos) or [Linux (NixOS)](#linux-nixos)), then run:
+Run the bootstrap script. It will install Nix and enable flakes if needed (on **macOS** and **Linux**), then clone this repo and apply the appropriate profile. On **NixOS** it will also enable flakes in the system config if needed.
 
 ```bash
 bash <(curl -fsSL https://github.com/isaaclins/configuration/raw/main/scripts/bootstrap.sh)
 ```
 
-The script will ask for confirmation before applying. On Linux it will prompt you to choose **PC** (desktop) or **homelab** (server).
+The script will ask for confirmation before applying. On Linux it will prompt you to choose **PC** (desktop) or **homelab** (server). For step-by-step commands without the script, see [macOS](#macos) or [Linux (NixOS)](#linux-nixos).
 
 ## Repository Structure
 
@@ -65,6 +65,8 @@ configurations/
 ## Setup (copy-paste by OS)
 
 ### macOS
+
+The [bootstrap script](#quick-start-bootstrap-script) does steps 1–3 for you. To do it manually:
 
 1. Install Nix (then open a **new terminal**):
 
