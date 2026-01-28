@@ -11,11 +11,11 @@
 
 This repository contains declarative system configurations for multiple machines:
 
-| Machine | Platform | Type | Description |
-|---------|----------|------|-------------|
-| `Isaacs-MacBook-Pro` | aarch64-darwin | nix-darwin | macOS development workstation |
-| `homelab` | x86_64-linux | NixOS | Headless Linux server (no GUI) |
-| `PC` | x86_64-linux | NixOS | Linux desktop with gaming |
+| Machine              | Platform       | Type       | Description                    |
+| -------------------- | -------------- | ---------- | ------------------------------ |
+| `Isaacs-MacBook-Pro` | aarch64-darwin | nix-darwin | macOS development workstation  |
+| `homelab`            | x86_64-linux   | NixOS      | Headless Linux server (no GUI) |
+| `PC`                 | x86_64-linux   | NixOS      | Linux desktop with gaming      |
 
 ## Repository Structure
 
@@ -59,17 +59,19 @@ configurations/
 ### For macOS (nix-darwin)
 
 1. **Install Nix** (if not already installed):
+
    ```bash
    # This command installs the Nix package manager on macOS
    curl -L https://nixos.org/nix/install | sh
    ```
 
 2. **Enable Flakes** (add to `~/.config/nix/nix.conf`):
+
    ```bash
    # Flakes are an experimental feature that must be enabled
    # Create the config directory if it doesn't exist
    mkdir -p ~/.config/nix
-   
+
    # Add the experimental features line to enable flakes
    echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
    ```
@@ -86,6 +88,7 @@ configurations/
 <!-- NixOS comes with Nix pre-installed, but flakes need enabling -->
 
 1. **Enable Flakes** (add to `/etc/nixos/configuration.nix`):
+
    ```nix
    # This enables the experimental flakes feature system-wide
    nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -105,10 +108,10 @@ configurations/
 
 ```bash
 # Clone the configuration repository (first time only)
-git clone https://github.com/isaaclins/configuration.git ~/github/configuration
+git clone https://github.com/isaaclins/configuration.git ~/.config/nix/configuration
 
 # Navigate to the configuration directory
-cd ~/github/configuration
+cd ~/.config/nix/configuration
 
 # Apply the configuration for this Mac
 # darwin-rebuild reads the flake and applies the darwinConfiguration
@@ -119,10 +122,10 @@ darwin-rebuild switch --flake .#Isaacs-MacBook-Pro
 
 ```bash
 # Clone the configuration repository (first time only)
-git clone https://github.com/isaaclins/configuration.git ~/github/configuration
+git clone https://github.com/isaaclins/configuration.git ~/.config/nix/configuration
 
 # Navigate to the configuration directory
-cd ~/github/configuration
+cd ~/.config/nix/configuration
 
 # Apply the configuration for the server
 # sudo is required because NixOS modifies system files
@@ -133,10 +136,10 @@ sudo nixos-rebuild switch --flake .#homelab
 
 ```bash
 # Clone the configuration repository (first time only)
-git clone https://github.com/isaaclins/configuration.git ~/github/configuration
+git clone https://github.com/isaaclins/configuration.git ~/.config/nix/configuration
 
 # Navigate to the configuration directory
-cd ~/github/configuration
+cd ~/.config/nix/configuration
 
 # Apply the configuration for the desktop
 # sudo is required because NixOS modifies system files
@@ -148,12 +151,14 @@ sudo nixos-rebuild switch --flake .#PC
 <!-- This section provides a guide for adding additional machines -->
 
 1. **Create a host directory**:
+
    ```bash
    # Create the directory for your new machine
    mkdir -p hosts/<hostname>
    ```
 
 2. **Create the configuration file** (`hosts/<hostname>/default.nix`):
+
    ```nix
    # Example structure for a new host configuration
    { config, pkgs, lib, ... }:
@@ -163,19 +168,20 @@ sudo nixos-rebuild switch --flake .#PC
        ../../modules/shells/fish.nix
        ../../modules/editors/neovim.nix
      ];
-     
+
      # Host-specific settings go here
    }
    ```
 
 3. **Add to flake.nix**:
+
    ```nix
    # For macOS, add to darwinConfigurations:
    "<hostname>" = nix-darwin.lib.darwinSystem {
      system = "aarch64-darwin";  # or "x86_64-darwin" for Intel Macs
      modules = [ ./hosts/<hostname>/default.nix ];
    };
-   
+
    # For Linux, add to nixosConfigurations:
    "<hostname>" = nixpkgs.lib.nixosSystem {
      system = "x86_64-linux";
@@ -184,10 +190,11 @@ sudo nixos-rebuild switch --flake .#PC
    ```
 
 4. **Deploy**:
+
    ```bash
    # For macOS
    darwin-rebuild switch --flake .#<hostname>
-   
+
    # For Linux
    sudo nixos-rebuild switch --flake .#<hostname>
    ```
@@ -205,16 +212,16 @@ sudo nixos-rebuild switch --flake .#PC
 
 ### Available Modules
 
-| Module | Description | Used By |
-|--------|-------------|---------|
-| `browsers/arc.nix` | Arc browser | Isaacs-MacBook-Pro |
-| `browsers/zen.nix` | Zen browser | PC |
-| `terminal/ghostty.nix` | Ghostty terminal | Isaacs-MacBook-Pro, PC |
-| `editors/neovim.nix` | Neovim editor | Isaacs-MacBook-Pro, PC |
-| `shells/fish.nix` | Fish shell + zoxide | Isaacs-MacBook-Pro, PC |
-| `development/git.nix` | Git + GitHub CLI | All machines |
-| `development/docker.nix` | Docker containers | homelab |
-| `server/essentials.nix` | Server tools | homelab |
+| Module                   | Description         | Used By                |
+| ------------------------ | ------------------- | ---------------------- |
+| `browsers/arc.nix`       | Arc browser         | Isaacs-MacBook-Pro     |
+| `browsers/zen.nix`       | Zen browser         | PC                     |
+| `terminal/ghostty.nix`   | Ghostty terminal    | Isaacs-MacBook-Pro, PC |
+| `editors/neovim.nix`     | Neovim editor       | Isaacs-MacBook-Pro, PC |
+| `shells/fish.nix`        | Fish shell + zoxide | Isaacs-MacBook-Pro, PC |
+| `development/git.nix`    | Git + GitHub CLI    | All machines           |
+| `development/docker.nix` | Docker containers   | homelab                |
+| `server/essentials.nix`  | Server tools        | homelab                |
 
 ## Updating
 
