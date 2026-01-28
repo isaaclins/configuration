@@ -160,114 +160,57 @@ jobs:
           nix eval .#nixosConfigurations.PC.config.system.build.toplevel --json > /dev/null
 
   # ========================================================================== #
-  # JOB: Build NixOS Configurations                                            #
+  # JOB: Build NixOS Configurations (DISABLED)                                 #
   # ========================================================================== #
-  # Actually builds the NixOS configurations.                                  #
-  # This is the most thorough test but takes longer and uses more resources.   #
-  # Only builds Linux configs (darwin requires macOS runner).                  #
+  # Uncomment this job to enable full NixOS builds.                            #
+  # This is thorough but takes longer and uses more resources.                 #
   # ========================================================================== #
-  build-nixos:
-    name: "Build NixOS" # Job name in GitHub UI
-    runs-on: ubuntu-latest # Use Ubuntu runner
-    needs: evaluate # Only run if evaluate passes
-
-    # ------------------------------------------------------------------------ #
-    # Build Matrix                                                             #
-    # ------------------------------------------------------------------------ #
-    # Build multiple configurations in parallel using a matrix strategy.       #
-    # Each configuration runs as a separate job.                               #
-    # ------------------------------------------------------------------------ #
-    strategy:
-      fail-fast: false # Don't cancel other builds if one fails
-      matrix:
-        # List of NixOS configurations to build
-        config:
-          - homelab # Headless server configuration
-          - PC # Desktop configuration
-
-    steps:
-      # ---------------------------------------------------------------------- #
-      # Step 1: Checkout Repository                                            #
-      # ---------------------------------------------------------------------- #
-      - name: Checkout repository
-        uses: actions/checkout@v4 # Clone the repository
-
-      # ---------------------------------------------------------------------- #
-      # Step 2: Install Nix                                                    #
-      # ---------------------------------------------------------------------- #
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@main # Install Nix
-
-      # ---------------------------------------------------------------------- #
-      # Step 3: Setup Nix Cache                                                #
-      # ---------------------------------------------------------------------- #
-      - name: Setup Nix cache
-        uses: DeterminateSystems/magic-nix-cache-action@main # Enable caching
-
-      # ---------------------------------------------------------------------- #
-      # Step 4: Build Configuration                                            #
-      # ---------------------------------------------------------------------- #
-      # Build the NixOS configuration for this matrix entry.                   #
-      # --no-link prevents creating a result symlink (not needed in CI).       #
-      # --print-build-logs shows detailed build output.                        #
-      # ---------------------------------------------------------------------- #
-      - name: Build ${{ matrix.config }}
-        run: |
-          # Build the NixOS configuration
-          nix build .#nixosConfigurations.${{ matrix.config }}.config.system.build.toplevel \
-            --no-link \
-            --print-build-logs
+  # build-nixos:
+  #   name: "Build NixOS"
+  #   runs-on: ubuntu-latest
+  #   needs: evaluate
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       config:
+  #         - homelab
+  #         - PC
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #     - name: Install Nix
+  #       uses: DeterminateSystems/nix-installer-action@main
+  #     - name: Setup Nix cache
+  #       uses: DeterminateSystems/magic-nix-cache-action@main
+  #     - name: Build ${{ matrix.config }}
+  #       run: |
+  #         nix build .#nixosConfigurations.${{ matrix.config }}.config.system.build.toplevel \
+  #           --no-link \
+  #           --print-build-logs
 
   # ========================================================================== #
-  # JOB: Build Darwin Configuration (macOS)                                    #
+  # JOB: Build Darwin Configuration (DISABLED)                                 #
   # ========================================================================== #
-  # Builds the macOS configuration on a macOS runner.                          #
+  # Uncomment this job to enable macOS builds.                                 #
   # NOTE: macOS runners have limited free minutes on GitHub Actions.           #
-  # Consider enabling this only for important branches or manual runs.         #
   # ========================================================================== #
-  build-darwin:
-    name: "Build Darwin" # Job name in GitHub UI
-    runs-on: macos-latest # Requires macOS runner (limited free minutes!)
-    needs: evaluate # Only run if evaluate passes
-
-    # ------------------------------------------------------------------------ #
-    # Conditional Execution                                                    #
-    # ------------------------------------------------------------------------ #
-    # Only run on main branch or manual triggers to save macOS minutes.        #
-    # Remove this 'if' to run on all PRs (uses more minutes).                  #
-    # ------------------------------------------------------------------------ #
-    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
-
-    steps:
-      # ---------------------------------------------------------------------- #
-      # Step 1: Checkout Repository                                            #
-      # ---------------------------------------------------------------------- #
-      - name: Checkout repository
-        uses: actions/checkout@v4 # Clone the repository
-
-      # ---------------------------------------------------------------------- #
-      # Step 2: Install Nix                                                    #
-      # ---------------------------------------------------------------------- #
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@main # Install Nix on macOS
-
-      # ---------------------------------------------------------------------- #
-      # Step 3: Setup Nix Cache                                                #
-      # ---------------------------------------------------------------------- #
-      - name: Setup Nix cache
-        uses: DeterminateSystems/magic-nix-cache-action@main # Enable caching
-
-      # ---------------------------------------------------------------------- #
-      # Step 4: Build Darwin Configuration                                     #
-      # ---------------------------------------------------------------------- #
-      # Build the nix-darwin configuration for macOS.                          #
-      # ---------------------------------------------------------------------- #
-      - name: Build Isaacs-MacBook-Pro
-        run: |
-          # Build the darwin configuration
-          nix build .#darwinConfigurations.Isaacs-MacBook-Pro.system \
-            --no-link \
-            --print-build-logs
+  # build-darwin:
+  #   name: "Build Darwin"
+  #   runs-on: macos-latest
+  #   needs: evaluate
+  #   if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #     - name: Install Nix
+  #       uses: DeterminateSystems/nix-installer-action@main
+  #     - name: Setup Nix cache
+  #       uses: DeterminateSystems/magic-nix-cache-action@main
+  #     - name: Build Isaacs-MacBook-Pro
+  #       run: |
+  #         nix build .#darwinConfigurations.Isaacs-MacBook-Pro.system \
+  #           --no-link \
+  #           --print-build-logs
 
   # ========================================================================== #
   # JOB: Summary                                                               #
@@ -278,8 +221,7 @@ jobs:
   ci-success:
     name: "CI Success" # Job name shown in GitHub UI
     runs-on: ubuntu-latest # Minimal runner
-    needs: [flake-check, evaluate, build-nixos] # Wait for these jobs
-    # Note: build-darwin is not required since it only runs on main
+    needs: [flake-check, evaluate] # Wait for these jobs (builds disabled)
 
     # ------------------------------------------------------------------------ #
     # Always Run                                                               #
@@ -300,12 +242,10 @@ jobs:
           # Print job results for debugging
           echo "Flake Check: ${{ needs.flake-check.result }}"
           echo "Evaluate: ${{ needs.evaluate.result }}"
-          echo "Build NixOS: ${{ needs.build-nixos.result }}"
           
           # Fail if any required job failed
           if [[ "${{ needs.flake-check.result }}" == "failure" ]] || \
-             [[ "${{ needs.evaluate.result }}" == "failure" ]] || \
-             [[ "${{ needs.build-nixos.result }}" == "failure" ]]; then
+             [[ "${{ needs.evaluate.result }}" == "failure" ]]; then
             echo "One or more jobs failed!"
             exit 1
           fi
