@@ -1,178 +1,119 @@
 # ============================================================================ #
-# modules/shells/fish.nix - Fish Shell Configuration                           #
+#
+# modules/shells/fish.nix - Fish Shell Application Module                      #
 # ============================================================================ #
-# This module installs and configures the Fish shell with zoxide.              #
-# Fish is a user-friendly shell with autosuggestions and syntax highlighting.  #
-# Zoxide is a smarter cd command that learns your habits.                      #
-# Works on both macOS (nix-darwin) and Linux (NixOS).                          #
-# Project: https://fishshell.com, https://github.com/ajeetdsouza/zoxide        #
+# This module provides an \"application layer\" for Fish:                       #
+# - On NixOS and macOS, it enables the Fish shell and installs related tools.  #
+# - For a given Home Manager user, it wires in a shared Fish config file      #
+#   (modules/shells/config.fish) by symlinking it to                          #
+#   ~/.config/fish/config.fish.                                               #
+#                                                                             #
+# Hosts only need to:                                                          #
+#   1. Import this module in their system `imports` list                       #
+#   2. Set `fish.enable = true;`                                              #
+#                                                                             #
+# Projects:                                                                   #
+# - Fish: https://fishshell.com                                               #
+# - Zoxide: https://github.com/ajeetdsouza/zoxide                             #
+# - Starship: https://starship.rs                                             #
 # ============================================================================ #
 
 { 
-  config, # The current system configuration (allows reading other options)
+  config, # The current system configuration (options and values)
   pkgs,   # The nixpkgs package set (contains all available packages)
   lib,    # Nix library functions (for conditionals, types, etc.)
   ...     # Allows other arguments to pass through (future compatibility)
 }: # Function argument set - this is a NixOS/nix-darwin module
 
+let
+  inherit (lib) mkEnableOption mkIf;
+in
+
 # ============================================================================ #
-# MODULE CONFIGURATION                                                         #
-# ============================================================================ #
-# This attribute set defines what this module adds to the system.              #
+# OPTIONS                                                                      #
 # ============================================================================ #
 {
-  # ========================================================================== #
-  # FISH SHELL PROGRAM                                                         #
-  # ========================================================================== #
-  # programs.fish enables and configures the Fish shell system-wide.           #
-  # This is available on both NixOS and nix-darwin.                            #
-  # ========================================================================== #
-  programs.fish = {
+  options.fish = {
     # ------------------------------------------------------------------------ #
-    # Enable Fish Shell                                                        #
+    # fish.enable                                                              #
     # ------------------------------------------------------------------------ #
-    # This adds fish to the system and registers it as a valid login shell.    #
-    # On NixOS, it adds fish to /etc/shells automatically.                     #
+    # Turn on the Fish shell application module for this host.                 #
     # ------------------------------------------------------------------------ #
-    enable = true; # Enable the Fish shell system-wide
+    enable = mkEnableOption "Fish shell with shared user config";
 
     # ------------------------------------------------------------------------ #
-    # Shell Initialization                                                     #
+    # fish.user                                                                #
     # ------------------------------------------------------------------------ #
-    # interactiveShellInit runs when an interactive shell starts.              #
-    # This is where we initialize zoxide and set up other shell configs.       #
+    # Username whose Home Manager session should get the Fish config.          #
+    # Defaults to \"isaac\" to match this repository, but can be overridden     #
+    # per host if needed.                                                       #
     # ------------------------------------------------------------------------ #
-    interactiveShellInit = ''
-      # ====================================================================== #
-      # Fish Shell Interactive Initialization                                  #
-      # ====================================================================== #
-      # This code runs every time a new interactive Fish shell starts.         #
-      # ====================================================================== #
-
-      # ---------------------------------------------------------------------- #
-      # Zoxide Initialization                                                  #
-      # ---------------------------------------------------------------------- #
-      # Initialize zoxide with Fish shell integration.                         #
-      # This creates the 'z' command for smart directory jumping.              #
-      # Usage: z <partial-path> to jump to frequently used directories.        #
-      # ---------------------------------------------------------------------- #
-      zoxide init fish | source # Initialize zoxide and source its config
-
-      # ---------------------------------------------------------------------- #
-      # Greeting Suppression                                                   #
-      # ---------------------------------------------------------------------- #
-      # Disable the default Fish greeting message.                             #
-      # This gives a cleaner shell startup experience.                         #
-      # ---------------------------------------------------------------------- #
-      set -g fish_greeting "" # Set greeting to empty string (no greeting)
-
-      # ---------------------------------------------------------------------- #
-      # Color Configuration                                                    #
-      # ---------------------------------------------------------------------- #
-      # Enable 24-bit true color support in Fish.                              #
-      # This allows themes and syntax highlighting to use full color range.    #
-      # ---------------------------------------------------------------------- #
-      set -gx COLORTERM truecolor # Enable true color support
-    ''; # End of interactiveShellInit
-
-    # ------------------------------------------------------------------------ #
-    # Shell Aliases                                                            #
-    # ------------------------------------------------------------------------ #
-    # Define shell aliases specific to Fish.                                   #
-    # These are available in all Fish shell sessions.                          #
-    # ------------------------------------------------------------------------ #
-    shellAliases = {
-      # ---------------------------------------------------------------------- #
-      # Directory Navigation Aliases                                           #
-      # ---------------------------------------------------------------------- #
-      # Common shortcuts for navigating the filesystem quickly.                #
-      # ---------------------------------------------------------------------- #
-      ".." = "cd .."; # Go up one directory
-      "..." = "cd ../.."; # Go up two directories
-      "...." = "cd ../../.."; # Go up three directories
-
-      # ---------------------------------------------------------------------- #
-      # List Directory Aliases                                                 #
-      # ---------------------------------------------------------------------- #
-      # Enhanced ls commands for better file listing.                          #
-      # Uses eza if available (modern ls replacement), falls back to ls.       #
-      # ---------------------------------------------------------------------- #
-      ll = "ls -la"; # Long listing with hidden files
-      la = "ls -a"; # List all files including hidden
-      l = "ls -l"; # Long listing format
-
-      # ---------------------------------------------------------------------- #
-      # Safety Aliases                                                         #
-      # ---------------------------------------------------------------------- #
-      # Add confirmation prompts to dangerous commands.                        #
-      # Prevents accidental deletion or overwriting of files.                  #
-      # ---------------------------------------------------------------------- #
-      rm = "rm -i"; # Prompt before removing files
-      mv = "mv -i"; # Prompt before overwriting files
-      cp = "cp -i"; # Prompt before overwriting files
-
-      # ---------------------------------------------------------------------- #
-      # Zoxide Aliases                                                         #
-      # ---------------------------------------------------------------------- #
-      # Convenient aliases for zoxide commands.                                #
-      # ---------------------------------------------------------------------- #
-      cd = "z"; # Replace cd with zoxide's z command
-      cdi = "zi"; # Interactive zoxide selection with fzf
-
-    }; # End of shellAliases
-
-  }; # End of programs.fish
+    user = lib.mkOption {
+      type = lib.types.str;
+      default = "isaac"; # Default primary user
+      description = "Username whose Home Manager config will receive Fish settings.";
+    };
+  };
 
   # ========================================================================== #
-  # SYSTEM PACKAGES                                                            #
+  # CONFIGURATION                                                              #
   # ========================================================================== #
-  # Install Fish-related packages system-wide.                                 #
-  # These enhance the Fish shell experience.                                   #
+  # Apply system-level and user-level configuration when fish.enable = true    #
   # ========================================================================== #
-  environment.systemPackages = with pkgs; [
-    # ------------------------------------------------------------------------ #
-    # Zoxide - Smarter cd Command                                              #
-    # ------------------------------------------------------------------------ #
-    # Zoxide tracks your most used directories and lets you jump to them.      #
-    # Instead of typing full paths, use: z <partial-name>                      #
-    # It learns from your cd habits and ranks directories by frequency.        #
-    # ------------------------------------------------------------------------ #
-    zoxide # A smarter cd command that learns your habits
+  config = mkIf config.fish.enable {
+    # ======================================================================== #
+    # SYSTEM-LEVEL FISH CONFIGURATION (NixOS + macOS)                          #
+    # ======================================================================== #
+    programs.fish = {
+      enable = true; # Enable the Fish shell system-wide
 
-    # ------------------------------------------------------------------------ #
-    # Starship - Cross-Shell Prompt                                            #
-    # ------------------------------------------------------------------------ #
-    # Starship is a fast, customizable prompt for any shell.                   #
-    # It shows git status, programming language versions, and more.            #
-    # Note: You'll need to add 'starship init fish | source' to fish config.   #
-    # ------------------------------------------------------------------------ #
-    starship # Minimal, blazing-fast, customizable prompt
+      # Shell initialization (runs on every interactive Fish shell)
+      interactiveShellInit = ''
+        # Zoxide initialization (smart cd)
+        if type -q zoxide
+          zoxide init fish | source
+        end
 
-    # ------------------------------------------------------------------------ #
-    # Eza - Modern ls Replacement                                              #
-    # ------------------------------------------------------------------------ #
-    # Eza (formerly exa) is a modern replacement for ls.                       #
-    # It has colors, icons, git integration, and better defaults.              #
-    # ------------------------------------------------------------------------ #
-    eza # Modern replacement for ls with colors and icons
+        # Enable truecolor for better themes
+        set -gx COLORTERM truecolor
+      '';
 
-    # ------------------------------------------------------------------------ #
-    # Bat - Cat with Syntax Highlighting                                       #
-    # ------------------------------------------------------------------------ #
-    # Bat is a cat clone with syntax highlighting and git integration.         #
-    # Makes viewing files in the terminal much more pleasant.                  #
-    # ------------------------------------------------------------------------ #
-    bat # Cat clone with syntax highlighting and git integration
+      # Shell aliases available in all Fish sessions
+      shellAliases = {
+        ".." = "cd ..";
+        "..." = "cd ../..";
+        "...." = "cd ../../..";
 
-    # ------------------------------------------------------------------------ #
-    # FZF - Fuzzy Finder                                                       #
-    # ------------------------------------------------------------------------ #
-    # FZF is a command-line fuzzy finder used by many tools.                   #
-    # Enables Ctrl+R for fuzzy history search in Fish.                         #
-    # Also used by zoxide for interactive directory selection (zi).            #
-    # ------------------------------------------------------------------------ #
-    fzf # Command-line fuzzy finder
+        ll = "ls -la";
+        la = "ls -a";
+        l = "ls -l";
 
-  ]; # End of systemPackages list
+        rm = "rm -i";
+        mv = "mv -i";
+        cp = "cp -i";
 
-} # End of module configuration
+        cd = "z";  # Use zoxide for cd
+        cdi = "zi"; # Interactive zoxide selection
+      };
+    };
+
+    # System packages that enhance the Fish experience
+    environment.systemPackages = with pkgs; [
+      zoxide   # Smarter cd
+      starship # Prompt
+      eza      # Modern ls
+      bat      # cat with syntax highlighting
+      fzf      # Fuzzy finder
+    ];
+
+    # ======================================================================== #
+    # HOME MANAGER USER CONFIGURATION (macOS + NixOS)                          #
+    # ======================================================================== #
+    # Directly manage ~/.config/fish/config.fish for the selected user by      #
+    # symlinking the tracked config.fish file from this repository.           #
+    # ======================================================================== #
+    home-manager.users.${config.fish.user}.home.file.".config/fish/config.fish".source =
+      ../../modules/shells/config.fish;
+  };
+
+} # End of module definition

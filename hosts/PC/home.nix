@@ -8,8 +8,6 @@
 #   home-manager.users.isaac = import ./hosts/PC/home.nix;                    #
 #                                                                             #
 # Here we configure user-level settings for Isaac on this PC.                 #
-# Ghostty's config is imported from a shared module in                        #
-# modules/terminal/ghostty-home.nix so it can be reused across hosts.         #
 # ============================================================================ #
 
 { 
@@ -26,19 +24,6 @@
 # on the NixOS desktop machine.                                                #
 # ============================================================================ #
 {
-  # ========================================================================== #
-  # IMPORTS - Shared Home Manager Modules                                      #
-  # ========================================================================== #
-  # Import shared Home Manager modules so this user gets the same behavior     #
-  # on any machine that imports them.                                          #
-  # -------------------------------------------------------------------------- #
-  # - fish-home.nix: manages ~/.config/fish/config.fish via a symlink to       #
-  #   modules/shells/config.fish in this repository.                           #
-  # ========================================================================== #
-  imports = [
-    ../../modules/shells/fish-home.nix # Shared Fish config (config.fish)
-  ];
-
   # ========================================================================== #
   # BASIC USER SETTINGS                                                        #
   # ========================================================================== #

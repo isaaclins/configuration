@@ -167,13 +167,14 @@
   nixpkgs.config.allowUnfree = true; # Allow packages with unfree licenses (NVIDIA, Steam)
 
   # ========================================================================== #
-  # GHOSTTY APPLICATION SETTINGS                                               #
+  # APPLICATION SETTINGS                                                       #
   # ========================================================================== #
-  # Enable the Ghostty application module for this host.                       #
-  # This installs Ghostty on NixOS and wires the shared user config           #
-  # via Home Manager for user \"isaac\".                                       #
+  # Enable the application modules for this host.                              #
+  # - ghostty: installs Ghostty on NixOS and wires shared user config         #
+  # - fish: installs Fish-related tools and wires shared Fish config          #
   # ========================================================================== #
   ghostty.enable = true; # Turn on Ghostty (system + user config)
+  fish.enable = true; # Turn on Fish shell application module (system + user config)
 
   # ========================================================================== #
   # DESKTOP ENVIRONMENT                                                        #

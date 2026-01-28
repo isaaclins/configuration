@@ -124,13 +124,14 @@
   }; # End of nixpkgs configuration
 
   # ========================================================================== #
-  # GHOSTTY APPLICATION SETTINGS                                               #
+  # APPLICATION SETTINGS                                                       #
   # ========================================================================== #
-  # Enable the Ghostty application module for this host.                       #
-  # On macOS this only wires in the shared Home Manager config for user       #
-  # \"isaac\"; the app itself is installed via Homebrew casks above.          #
+  # Enable the application modules for this host.                              #
+  # - ghostty: wires in shared Ghostty config for user \"isaac\"               #
+  # - fish: wires in shared Fish config and installs CLI helpers              #
   # ========================================================================== #
   ghostty.enable = true; # Turn on Ghostty user config (macOS)
+  fish.enable = true; # Turn on Fish shell application module (macOS)
 
   # ========================================================================== #
   # SYSTEM PACKAGES                                                            #
