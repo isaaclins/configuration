@@ -52,9 +52,9 @@ lib.mkMerge [
   # MACOS CONFIGURATION (nix-darwin)                                           #
   # ========================================================================== #
   # On macOS, Ghostty is installed via Homebrew cask.                          #
-  # lib.mkIf only includes this block when isDarwin is true.                   #
+  # lib.optionalAttrs returns {} on Linux, so homebrew won't be referenced.    #
   # ========================================================================== #
-  (lib.mkIf isDarwin {
+  (lib.optionalAttrs isDarwin {
     # ------------------------------------------------------------------------ #
     # Homebrew Cask Installation                                               #
     # ------------------------------------------------------------------------ #
@@ -73,9 +73,9 @@ lib.mkMerge [
   # LINUX CONFIGURATION (NixOS)                                                #
   # ========================================================================== #
   # On Linux, Ghostty can be installed from nixpkgs or built from source.      #
-  # lib.mkIf only includes this block when isDarwin is false (i.e., Linux).    #
+  # lib.optionalAttrs returns {} on macOS, so hardware.opengl won't be used.   #
   # ========================================================================== #
-  (lib.mkIf (!isDarwin) {
+  (lib.optionalAttrs (!isDarwin) {
     # ------------------------------------------------------------------------ #
     # System Packages Installation                                             #
     # ------------------------------------------------------------------------ #

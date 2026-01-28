@@ -119,9 +119,9 @@ lib.mkMerge [
   # MACOS CONFIGURATION (nix-darwin)                                           #
   # ========================================================================== #
   # On macOS, Docker runs in a Linux VM via Docker Desktop.                    #
-  # Docker Desktop is installed via Homebrew cask.                             #
+  # lib.optionalAttrs returns {} on Linux, so homebrew won't be referenced.    #
   # ========================================================================== #
-  (lib.mkIf isDarwin {
+  (lib.optionalAttrs isDarwin {
     # ------------------------------------------------------------------------ #
     # Homebrew Cask - Docker Desktop                                           #
     # ------------------------------------------------------------------------ #
@@ -140,9 +140,9 @@ lib.mkMerge [
   # LINUX CONFIGURATION (NixOS)                                                #
   # ========================================================================== #
   # On Linux, Docker runs natively as a system service.                        #
-  # NixOS has a built-in virtualisation.docker module for this.                #
+  # lib.optionalAttrs returns {} on macOS, so virtualisation won't be used.    #
   # ========================================================================== #
-  (lib.mkIf (!isDarwin) {
+  (lib.optionalAttrs (!isDarwin) {
     # ------------------------------------------------------------------------ #
     # Docker Daemon                                                            #
     # ------------------------------------------------------------------------ #
