@@ -28,10 +28,11 @@
   # ========================================================================== #
   # BASIC USER SETTINGS                                                        #
   # ========================================================================== #
-  # Set from primaryUser (current user; default "isaaclins" if unset).         #
+  # Set from primaryUser. Use mkForce so we override home-manager's lookup     #
+  # (which can be null when the user does not exist on the system yet).        #
   # ========================================================================== #
   home.username = primaryUser;
-  home.homeDirectory = "/home/${primaryUser}";
+  home.homeDirectory = lib.mkForce "/home/${primaryUser}";
 
   # ========================================================================== #
   # STATE VERSION                                                              #
