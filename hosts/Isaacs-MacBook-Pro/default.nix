@@ -39,12 +39,9 @@
     ../../modules/browsers/arc.nix # Import Arc browser module
 
     # ------------------------------------------------------------------------ #
-    # Terminal - Ghostty                                                       #
+    # NOTE: Ghostty is installed via Homebrew casks below (macOS-specific).    #
+    # The ghostty.nix module is for NixOS (Linux) only.                        #
     # ------------------------------------------------------------------------ #
-    # Ghostty terminal emulator - fast, GPU-accelerated.                       #
-    # Installed via Homebrew cask on macOS.                                    #
-    # ------------------------------------------------------------------------ #
-    ../../modules/terminal/ghostty.nix # Import Ghostty terminal module
 
     # ------------------------------------------------------------------------ #
     # Editor - Neovim                                                          #
@@ -71,9 +68,9 @@
     ../../modules/development/git.nix # Import Git development module
 
     # ------------------------------------------------------------------------ #
-    # NOTE: Docker is NOT imported by default for this machine.                #
-    # Uncomment the line below if you need Docker on this Mac:                 #
-    # ../../modules/development/docker.nix                                     #
+    # NOTE: Docker module is for NixOS (Linux) only.                           #
+    # For macOS, install Docker Desktop via Homebrew casks above.              #
+    # Add "docker" to the casks list if you need Docker on this Mac.           #
     # ------------------------------------------------------------------------ #
 
   ]; # End of imports list
@@ -179,10 +176,11 @@
     # ------------------------------------------------------------------------ #
     # Homebrew Casks (GUI applications)                                        #
     # ------------------------------------------------------------------------ #
-    # Additional macOS applications beyond what modules provide.               #
-    # Note: Arc and Ghostty are added by their respective modules.             #
+    # macOS applications installed via Homebrew casks.                         #
+    # Note: Arc is added by the arc.nix module.                                #
     # ------------------------------------------------------------------------ #
     casks = [
+      "ghostty" # Ghostty terminal - fast, GPU-accelerated terminal emulator
       # "visual-studio-code" # VSCode (uncomment if you use VSCode)
       # "discord" # Discord chat (uncomment if needed)
       # "slack" # Slack chat (uncomment if needed)
