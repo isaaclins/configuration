@@ -52,33 +52,9 @@
   # ========================================================================== #
   # CONFIGURATION                                                              #
   # ========================================================================== #
-  # Apply system-level and user-level configuration when ghostty.enable = true #
+  # Apply user-level configuration when ghostty.enable = true                  #
   # ========================================================================== #
-  config = lib.mkIf config.ghostty.enable (lib.mkMerge [
-    # ======================================================================== #
-    # NixOS SYSTEM CONFIGURATION (Linux only)                                  #
-    # ======================================================================== #
-    # Install Ghostty and enable GPU acceleration on Linux systems.            #
-    # This part is skipped on macOS; on macOS Ghostty is installed via         #
-    # Homebrew in the host configuration.                                      #
-    # ======================================================================== #
-    (lib.optionalAttrs pkgs.stdenv.isLinux {
-      # ---------------------------------------------------------------------- #
-      # System packages                                                        #
-      # ---------------------------------------------------------------------- #
-      environment.systemPackages = with pkgs; [
-        ghostty # Ghostty terminal - GPU-accelerated terminal emulator
-      ];
-
-      # ---------------------------------------------------------------------- #
-      # GPU / graphics                                                         #
-      # ---------------------------------------------------------------------- #
-      # On newer NixOS versions, hardware.graphics.enable is the preferred     #
-      # way to turn on GPU support.                                            #
-      # ---------------------------------------------------------------------- #
-      hardware.graphics.enable = true; # Enable GPU support for Ghostty
-    })
-
+  config = lib.mkIf config.ghostty.enable {
     # ======================================================================== #
     # HOME MANAGER USER CONFIGURATION (macOS + NixOS)                          #
     # ======================================================================== #
@@ -89,11 +65,9 @@
     # configuration (as done in flake.nix for this repo), so the               #
     # `home-manager.users` option namespace exists.                            #
     # ======================================================================== #
-    {
-      home-manager.users.${config.ghostty.user}.home.file.".config/ghostty/config".source =
-        ./ghostty-config; # Symlink ~/.config/ghostty/config to this file
-    }
-  ]);
+    home-manager.users.${config.ghostty.user}.home.file.".config/ghostty/config".source =
+      ./ghostty-config; # Symlink ~/.config/ghostty/config to this file
+  };
 
 } # End of module definition
 
