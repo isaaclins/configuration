@@ -1,0 +1,102 @@
+name: "Config Snapshot Release"
+
+# ============================================================================
+# Triggers
+# ============================================================================
+# This workflow runs when you push a tag like v0.1.0, or when triggered manually.
+# It runs flake checks and then creates a GitHub Release for that tag.
+# ============================================================================
+on:
+  push:
+    tags:
+      - "v*" # Any tag starting with v (e.g. v0.1.0)
+  workflow_dispatch: # Allow manual runs for an existing tag
+
+jobs:
+  release:
+    name: "Create Snapshot Release"
+    runs-on: ubuntu-latest
+
+    steps:
+      # ----------------------------------------------------------------------
+      # Step 1: Checkout repository
+      # ----------------------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ----------------------------------------------------------------------
+      # Step 2: Install Nix
+      # ----------------------------------------------------------------------
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      # ----------------------------------------------------------------------
+      # Step 3: Setup Nix cache (GitHub Actions cache only)
+      # ----------------------------------------------------------------------
+      - name: Setup Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@main
+        with:
+          use-flakehub: false # Avoid FlakeHub auth; use only GHA cache
+
+      # ----------------------------------------------------------------------
+      # Step 4: Validate flake for all systems
+      # ----------------------------------------------------------------------
+      - name: Run nix flake check
+        run: nix flake check --all-systems
+
+      # ----------------------------------------------------------------------
+      # Step 5: Create GitHub Release
+      # ----------------------------------------------------------------------
+      # This step turns the pushed tag into a GitHub Release with a
+      # standard snapshot description and per-host usage examples.
+      # ----------------------------------------------------------------------
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: "Config snapshot ${{ github.ref_name }}"
+          draft: false
+          prerelease: false
+          body: |
+            ## Snapshot ${{ github.ref_name }}
+
+            This release is an immutable snapshot of the Nix configurations
+            for all machines, pinned by this tag and its `flake.lock`.
+
+            ### Hosts in this snapshot
+
+            - **Isaacs-MacBook-Pro** (aarch64-darwin, nix-darwin)
+            - **homelab** (x86_64-linux, NixOS server)
+            - **PC** (x86_64-linux, NixOS desktop/gaming)
+
+            ### How to deploy this snapshot
+
+            **macOS (Isaacs-MacBook-Pro)**:
+
+            ```bash
+            darwin-rebuild switch \
+              --flake github:isaaclins/configuration?ref=${{ github.ref_name }}#Isaacs-MacBook-Pro
+            ```
+
+            **Linux server (homelab)**:
+
+            ```bash
+            sudo nixos-rebuild switch \
+              --flake github:isaaclins/configuration?ref=${{ github.ref_name }}#homelab
+            ```
+
+            **Linux desktop (PC)**:
+
+            ```bash
+            sudo nixos-rebuild switch \
+              --flake github:isaaclins/configuration?ref=${{ github.ref_name }}#PC
+            ```
+
+            ### Notes
+
+            - This release was created automatically by `.github/workflows/release.yml`
+              after `nix flake check --all-systems` succeeded for this tag.
+            - Use older tags to roll back to previous known-good configurations.
+
