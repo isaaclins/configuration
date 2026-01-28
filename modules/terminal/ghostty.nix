@@ -43,12 +43,9 @@
   # OPENGL FOR GPU ACCELERATION                                                #
   # ========================================================================== #
   # Ghostty uses GPU rendering for smooth performance.                         #
-  # This ensures OpenGL/graphics drivers are available.                        #
+  # On newer NixOS versions, enabling hardware.opengl is enough;               #
+  # driSupport and driSupport32Bit are now no-ops and should be omitted.      #
   # ========================================================================== #
-  hardware.opengl = {
-    enable = true; # Enable OpenGL support for GPU-accelerated rendering
-    driSupport = true; # Enable Direct Rendering Infrastructure
-    driSupport32Bit = true; # Enable 32-bit DRI support (for compatibility)
-  }; # End of hardware.opengl configuration
+  hardware.opengl.enable = true; # Enable OpenGL support for GPU-accelerated rendering
 
 } # End of module configuration
