@@ -431,6 +431,11 @@ You can keep using `main` for day-to-day work and only cut tags/Releases when yo
 - **macOS first-time apply (use this repo, not LnL7):** `cd ~/.config/nix/configuration && sudo nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake .#Isaacs-MacBook-Pro`
 - **macOS "run as root":** use `sudo` with the command above.
 - **NixOS:** use `sudo nixos-rebuild switch --flake .#homelab` or `.#PC`.
+- **Slow builds / building from source:** The config includes binary caches. If builds are slow, ensure caches are enabled in `~/.config/nix/nix.conf`:
+  ```bash
+  echo "substituters = https://cache.nixos.org https://nix-community.cachix.org" >> ~/.config/nix/nix.conf
+  echo "trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" >> ~/.config/nix/nix.conf
+  ```
 - **Changes not applied:** log out / reboot.
 
 ## License

@@ -98,6 +98,22 @@
       "flakes" # Enable flakes for reproducible Nix configurations
     ]; # End of experimental-features
 
+    # ------------------------------------------------------------------------ #
+    # Binary Caches (Substituters)                                            #
+    # ------------------------------------------------------------------------ #
+    # Configure binary caches to avoid building from source.                    #
+    # These caches provide pre-built binaries for common packages.              #
+    # ------------------------------------------------------------------------ #
+    settings.substituters = [
+      "https://cache.nixos.org" # Official NixOS binary cache
+      "https://nix-community.cachix.org" # Community cache (includes macOS builds)
+    ];
+
+    settings.trusted-public-keys = [
+      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=" # Official NixOS cache key
+      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" # Community cache key
+    ];
+
   }; # End of nix configuration
 
   # ========================================================================== #
