@@ -45,6 +45,20 @@
       inputs.nixpkgs.follows = "nixpkgs"; # Makes nix-darwin use our nixpkgs version instead of its own
     }; # End of nix-darwin input definition
 
+    # ------------------------------------------------------------------------ #
+    # home-manager - Per-user Configuration Manager                            #
+    # ------------------------------------------------------------------------ #
+    # Home Manager manages user-level config (dotfiles, app configs)           #
+    # declaratively. We use it to manage Ghostty's config file in              #
+    # ~/.config/ghostty/config for the Mac and PC users.                       #
+    # Repository: https://github.com/nix-community/home-manager                #
+    # ------------------------------------------------------------------------ #
+    home-manager = {
+      url = "github:nix-community/home-manager"; # Points to the home-manager repository on GitHub
+      inputs.nixpkgs.follows = "nixpkgs"; # Share the same nixpkgs as the rest of the flake
+      inputs.darwin.follows = "nix-darwin"; # Share the same nix-darwin input for macOS integration
+    }; # End of home-manager input definition
+
   }; # End of inputs attribute set
 
   # ========================================================================== #
@@ -55,10 +69,11 @@
   # The function receives all inputs as arguments.                             #
   # ========================================================================== #
   outputs = { 
-    self,       # Reference to this flake itself (for accessing other outputs)
-    nixpkgs,    # The nixpkgs input we defined above
-    nix-darwin, # The nix-darwin input we defined above
-    ...         # Captures any other inputs we might add later
+    self,         # Reference to this flake itself (for accessing other outputs)
+    nixpkgs,      # The nixpkgs input we defined above
+    nix-darwin,   # The nix-darwin input we defined above
+    home-manager, # The home-manager input for per-user configuration
+    ...           # Captures any other inputs we might add later
   }: {
     # ======================================================================== #
     # DARWIN CONFIGURATIONS (macOS)                                            #
@@ -77,8 +92,23 @@
       # ---------------------------------------------------------------------- #
       "Isaacs-MacBook-Pro" = nix-darwin.lib.darwinSystem { # Creates a darwin system configuration
         system = "aarch64-darwin"; # Specifies Apple Silicon architecture (M1/M2/M3 chips)
-        modules = [ # List of NixOS/nix-darwin modules to include in this configuration
-          ./hosts/Isaacs-MacBook-Pro/default.nix # Imports the host-specific configuration file
+        modules = [ # List of nix-darwin and Home Manager modules for this Mac
+          ./hosts/Isaacs-MacBook-Pro/default.nix # Imports the host-specific system configuration file
+
+          # ------------------------------------------------------------------ #
+          # Home Manager Integration (macOS)                                   #
+          # ------------------------------------------------------------------ #
+          # This connects Home Manager to nix-darwin, allowing us to manage   #
+          # per-user dotfiles like ~/.config/ghostty/config declaratively.    #
+          # ------------------------------------------------------------------ #
+          home-manager.darwinModules.home-manager # Enable Home Manager on macOS
+          { # Inline module configuring Home Manager for user "isaac"
+            home-manager = {
+              useGlobalPkgs = true; # Share the same pkgs as the system
+              useUserPackages = true; # Allow Home Manager to install user packages
+              users.isaac = import ./hosts/Isaacs-MacBook-Pro/home.nix; # Import Isaac's Home Manager config
+            }; # End of home-manager configuration
+          } # End of inline Home Manager module
         ]; # End of modules list
       }; # End of Isaacs-MacBook-Pro configuration
 
@@ -115,8 +145,23 @@
       # ---------------------------------------------------------------------- #
       "PC" = nixpkgs.lib.nixosSystem { # Creates a NixOS system configuration
         system = "x86_64-linux"; # Specifies 64-bit Intel/AMD architecture
-        modules = [ # List of NixOS modules to include in this configuration
-          ./hosts/PC/default.nix # Imports the host-specific configuration file
+        modules = [ # List of NixOS and Home Manager modules for this desktop
+          ./hosts/PC/default.nix # Imports the host-specific system configuration file
+
+          # ------------------------------------------------------------------ #
+          # Home Manager Integration (NixOS)                                   #
+          # ------------------------------------------------------------------ #
+          # This connects Home Manager to NixOS for the PC user, so we can    #
+          # manage per-user config like Ghostty's config file.                #
+          # ------------------------------------------------------------------ #
+          home-manager.nixosModules.home-manager # Enable Home Manager on NixOS
+          { # Inline module configuring Home Manager for user "isaac"
+            home-manager = {
+              useGlobalPkgs = true; # Share the same pkgs as the system
+              useUserPackages = true; # Allow Home Manager to install user packages
+              users.isaac = import ./hosts/PC/home.nix; # Import Isaac's Home Manager config for PC
+            }; # End of home-manager configuration
+          } # End of inline Home Manager module
         ]; # End of modules list
       }; # End of PC configuration
 
