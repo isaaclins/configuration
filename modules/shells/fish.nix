@@ -45,12 +45,12 @@ in
     # fish.user                                                                #
     # ------------------------------------------------------------------------ #
     # Username whose Home Manager session should get the Fish config.          #
-    # Defaults to \"isaac\" to match this repository, but can be overridden     #
+    # Defaults to \"isaaclins\" to match this repository, but can be overridden #
     # per host if needed.                                                       #
     # ------------------------------------------------------------------------ #
     user = lib.mkOption {
       type = lib.types.str;
-      default = "isaac"; # Default primary user
+      default = "isaaclins"; # Default primary user
       description = "Username whose Home Manager config will receive Fish settings.";
     };
   };

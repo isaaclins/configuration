@@ -30,8 +30,8 @@
   # These describe which user this Home Manager config applies to.             #
   # They must match the Linux username and home directory.                     #
   # ========================================================================== #
-  home.username = "isaac"; # NixOS account name for this user
-  home.homeDirectory = "/home/isaac"; # Home directory path on NixOS
+  home.username = "isaaclins"; # NixOS account name for this user
+  home.homeDirectory = "/home/isaaclins"; # Home directory path on NixOS
 
   # ========================================================================== #
   # STATE VERSION                                                              #

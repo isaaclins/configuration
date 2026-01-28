@@ -30,8 +30,8 @@
   # These describe which user this Home Manager config applies to.             #
   # They must match the macOS username and home directory.                     #
   # ========================================================================== #
-  home.username = "isaac"; # macOS account name for this user
-  home.homeDirectory = "/Users/isaac"; # Home directory path on macOS
+  home.username = "isaaclins"; # macOS account name for this user
+  home.homeDirectory = "/Users/isaaclins"; # Home directory path on macOS
 
   # ========================================================================== #
   # STATE VERSION                                                              #

@@ -321,7 +321,7 @@
   # to a primary user instead of the user running darwin-rebuild.              #
   # Set this to your macOS username.                                           #
   # ========================================================================== #
-  system.primaryUser = "isaac"; # Primary user for nix-darwin-managed settings
+  system.primaryUser = "isaaclins"; # Primary user for nix-darwin-managed settings
 
   # ========================================================================== #
   # SYSTEM STATE VERSION                                                       #

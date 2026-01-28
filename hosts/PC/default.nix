@@ -304,18 +304,18 @@
     # ------------------------------------------------------------------------ #
     # Primary User                                                             #
     # ------------------------------------------------------------------------ #
-    # The main user account. Change "isaac" to your username.                  #
+    # The main user account. Change "isaaclins" to your username.              #
     # ------------------------------------------------------------------------ #
-    isaac = {
+    isaaclins = {
       isNormalUser = true; # Create as a normal (non-system) user
-      description = "Isaac"; # User's full name/description
+      description = "Isaac Lins"; # User's full name/description
       extraGroups = [
         "wheel" # Allow sudo access
         "networkmanager" # Allow network configuration
         "audio" # Audio device access
         "video" # Video device access
       ]; # End of extraGroups
-    }; # End of isaac user
+    }; # End of isaaclins user
 
   }; # End of users.users
 

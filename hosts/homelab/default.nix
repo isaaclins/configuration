@@ -214,11 +214,11 @@
     # Primary Admin User                                                       #
     # ------------------------------------------------------------------------ #
     # The main user account for server administration.                         #
-    # Change "isaac" to your username.                                         #
+    # Change "isaaclins" to your username.                                     #
     # ------------------------------------------------------------------------ #
-    isaac = {
+    isaaclins = {
       isNormalUser = true; # Create as a normal (non-system) user
-      description = "Isaac"; # User's full name/description
+      description = "Isaac Lins"; # User's full name/description
       extraGroups = [
         "wheel" # Allow sudo access
         "docker" # Allow Docker without sudo
@@ -235,7 +235,7 @@
         # "ssh-ed25519 AAAAC3..." # Paste your public key here
       ]; # End of authorizedKeys
 
-    }; # End of isaac user
+    }; # End of isaaclins user
 
   }; # End of users.users
 

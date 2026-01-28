@@ -102,11 +102,11 @@
           # per-user dotfiles like ~/.config/ghostty/config declaratively.    #
           # ------------------------------------------------------------------ #
           home-manager.darwinModules.home-manager # Enable Home Manager on macOS
-          { # Inline module configuring Home Manager for user "isaac"
+          { # Inline module configuring Home Manager for user "isaaclins"
             home-manager = {
               useGlobalPkgs = true; # Share the same pkgs as the system
               useUserPackages = true; # Allow Home Manager to install user packages
-              users.isaac = import ./hosts/Isaacs-MacBook-Pro/home.nix; # Import Isaac's Home Manager config
+              users.isaaclins = import ./hosts/Isaacs-MacBook-Pro/home.nix; # Import Isaac's Home Manager config
             }; # End of home-manager configuration
           } # End of inline Home Manager module
         ]; # End of modules list
@@ -155,11 +155,11 @@
           # manage per-user config like Ghostty's config file.                #
           # ------------------------------------------------------------------ #
           home-manager.nixosModules.home-manager # Enable Home Manager on NixOS
-          { # Inline module configuring Home Manager for user "isaac"
+          { # Inline module configuring Home Manager for user "isaaclins"
             home-manager = {
               useGlobalPkgs = true; # Share the same pkgs as the system
               useUserPackages = true; # Allow Home Manager to install user packages
-              users.isaac = import ./hosts/PC/home.nix; # Import Isaac's Home Manager config for PC
+              users.isaaclins = import ./hosts/PC/home.nix; # Import Isaac's Home Manager config for PC
             }; # End of home-manager configuration
           } # End of inline Home Manager module
         ]; # End of modules list
