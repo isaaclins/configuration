@@ -46,6 +46,6 @@
   # On newer NixOS versions, enabling hardware.opengl is enough;               #
   # driSupport and driSupport32Bit are now no-ops and should be omitted.      #
   # ========================================================================== #
-  hardware.opengl.enable = true; # Enable OpenGL support for GPU-accelerated rendering
+  hardware.graphics.enable = true; # Enable OpenGL support for GPU-accelerated rendering
 
 } # End of module configuration
