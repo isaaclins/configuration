@@ -51,6 +51,26 @@ if [ ! -f "$NIX_CONF_FILE" ] || ! grep -q 'experimental-features' "$NIX_CONF_FIL
   echo "experimental-features = nix-command flakes" >> "$NIX_CONF_FILE"
 fi
 
+# Step 2b: Enable binary caches in user nix.conf (avoid building from source)
+if ! grep -q 'substituters' "$NIX_CONF_FILE" 2>/dev/null; then
+  echo "==> Enabling binary caches in $NIX_CONF_FILE"
+  echo "substituters = https://cache.nixos.org https://nix-community.cachix.org" >> "$NIX_CONF_FILE"
+  echo "trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" >> "$NIX_CONF_FILE"
+fi
+
+# Step 2c (macOS only): Enable binary caches in /etc/nix/nix.conf so sudo/daemon uses them
+if [ "$OS" = "Darwin" ] && [ -d /etc/nix ]; then
+  if ! grep -q 'substituters' /etc/nix/nix.conf 2>/dev/null; then
+    echo "==> Enabling binary caches in /etc/nix/nix.conf (so sudo/daemon use cache)"
+    sudo tee -a /etc/nix/nix.conf << 'NIXCACHE' >/dev/null
+
+# Binary caches (added by bootstrap) - avoid building from source
+substituters = https://cache.nixos.org https://nix-community.cachix.org
+trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
+NIXCACHE
+  fi
+fi
+
 # Step 3 (NixOS only): Enable flakes in system config if needed
 if [ "$OS" = "Linux" ] && [ -f /etc/NIXOS ] && [ -f /etc/nixos/configuration.nix ]; then
   if ! grep -q 'experimental-features' /etc/nixos/configuration.nix 2>/dev/null; then

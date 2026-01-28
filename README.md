@@ -431,11 +431,17 @@ You can keep using `main` for day-to-day work and only cut tags/Releases when yo
 - **macOS first-time apply (use this repo, not LnL7):** `cd ~/.config/nix/configuration && sudo nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake .#Isaacs-MacBook-Pro`
 - **macOS "run as root":** use `sudo` with the command above.
 - **NixOS:** use `sudo nixos-rebuild switch --flake .#homelab` or `.#PC`.
-- **Slow builds / building from source:** The config includes binary caches. If builds are slow, ensure caches are enabled in `~/.config/nix/nix.conf`:
+- **Slow builds / building from source (e.g. Swift):** The config and bootstrap enable binary caches. If you still see builds from source when using `sudo`, the **daemon** may not see your user config. Add caches to **system** config so `sudo`/daemon use them:
   ```bash
-  echo "substituters = https://cache.nixos.org https://nix-community.cachix.org" >> ~/.config/nix/nix.conf
-  echo "trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" >> ~/.config/nix/nix.conf
+  sudo tee -a /etc/nix/nix.conf << 'EOF'
   ```
+
+substituters = https://cache.nixos.org https://nix-community.cachix.org
+trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
+EOF
+
+```
+Then **restart the nix-daemon** (macOS: `sudo launchctl kickstart -k system/org.nixos.nix-daemon`) and retry the build.
 - **Changes not applied:** log out / reboot.
 
 ## License
@@ -443,3 +449,4 @@ You can keep using `main` for day-to-day work and only cut tags/Releases when yo
 <!-- License information for this configuration -->
 
 This configuration is provided as-is for personal use.
+```
