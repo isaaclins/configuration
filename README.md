@@ -19,7 +19,7 @@ This repository contains declarative system configurations for multiple machines
 
 ## Quick start (bootstrap script)
 
-Run the bootstrap script; it will clone this repo and apply the right profile for your OS. For step-by-step copy-paste commands, see [macOS](#macos) or [Linux (NixOS)](#linux-nixos).
+Install Nix and enable flakes first (see [macOS](#macos) or [Linux (NixOS)](#linux-nixos)), then run:
 
 ```bash
 bash <(curl -fsSL https://github.com/isaaclins/configuration/raw/main/scripts/bootstrap.sh)
@@ -151,7 +151,7 @@ git pull --ff-only
 sudo darwin-rebuild switch --flake .#Isaacs-MacBook-Pro
 ```
 
-**Linux (homelab or PC):**
+**Linux (homelab):**
 
 ```bash
 cd ~/.config/nix/configuration
@@ -159,12 +159,13 @@ git pull --ff-only
 sudo nixos-rebuild switch --flake .#homelab
 ```
 
-Or for PC:
+**Linux (PC):**
 
 ```bash
+cd ~/.config/nix/configuration
+git pull --ff-only
 sudo nixos-rebuild switch --flake .#PC
 ```
-
 
 ## Adding a New Machine
 
@@ -418,60 +419,11 @@ You can keep using `main` for day-to-day work and only cut tags/Releases when yo
 
 ## Troubleshooting
 
-<!-- This section provides solutions to common problems -->
-
-### "experimental-features" error
-
-If you see an error about flakes being experimental:
-
-```bash
-# Ensure flakes are enabled in your Nix configuration
-echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
-```
-
-When using `sudo nix run nix-darwin`, root may not have flakes enabled; add:
-
-```bash
-sudo nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake <path>#<host>
-```
-
-### "does not provide attribute darwinConfigurations.&lt;hostname&gt;.system"
-
-This happens if you use `--flake github:LnL7/nix-darwin`. That flake is the nix-darwin _framework_ only; it does not define configurations for your machine. Use **this** repo and an explicit host profile instead:
-
-```bash
-# From this repo (after cloning):
-sudo nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake .#Isaacs-MacBook-Pro
-```
-
-Or run the [bootstrap script](#quick-start-one-command-bootstrap), which uses this repo and the correct profile.
-
-### "system activation must now be run as root" (macOS)
-
-nix-darwin system activation requires root. Run the command with `sudo`:
-
-```bash
-sudo nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake .#Isaacs-MacBook-Pro
-```
-
-### Permission denied on NixOS
-
-NixOS requires root to modify system configuration:
-
-```bash
-# Always use sudo for NixOS rebuilds
-sudo nixos-rebuild switch --flake .#<hostname>
-```
-
-### Changes not taking effect
-
-Some changes require a restart:
-
-```bash
-# For macOS, some system settings need a logout/login
-# For NixOS, some services need a reboot
-sudo reboot
-```
+- **Flakes disabled:** `mkdir -p ~/.config/nix && echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf`
+- **macOS first-time apply (use this repo, not LnL7):** `cd ~/.config/nix/configuration && sudo nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake .#Isaacs-MacBook-Pro`
+- **macOS "run as root":** use `sudo` with the command above.
+- **NixOS:** use `sudo nixos-rebuild switch --flake .#homelab` or `.#PC`.
+- **Changes not applied:** log out / reboot.
 
 ## License
 
