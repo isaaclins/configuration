@@ -72,7 +72,7 @@ configurations/
    curl -L https://nixos.org/nix/install | sh
    ```
 
-2. Enable flakes:
+2. Enable flakes (Nix reads this from `~/.config/nix/nix.conf`; `experimental-features` is a [documented Nix option](https://nix.dev/manual/nix/stable/command-ref/conf-file#conf-experimental-features)):
 
    ```bash
    mkdir -p ~/.config/nix && echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
