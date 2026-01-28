@@ -99,4 +99,3 @@ jobs:
             - This release was created automatically by `.github/workflows/release.yml`
               after `nix flake check --all-systems` succeeded for this tag.
             - Use older tags to roll back to previous known-good configurations.
-

@@ -249,6 +249,80 @@ darwin-rebuild switch --flake .#Isaacs-MacBook-Pro
 sudo nixos-rebuild switch --flake .#<hostname>
 ```
 
+## Versioned Snapshots with GitHub Releases
+
+<!-- This section explains how to use tags/Releases as frozen snapshots -->
+
+### Why use releases?
+
+- **Reproducible snapshots**: Each tag + `flake.lock` is a frozen view of all hosts.
+- **Safe rollbacks**: You can roll machines back to a known-good tag.
+- **Clear history**: Release notes summarize what changed on each machine.
+
+### 1. Create a tagged snapshot
+
+From your local clone:
+
+```bash
+# Make sure main is up to date and CI is green
+git checkout main
+git pull
+
+# Create an annotated tag for this snapshot
+git tag -a v0.1.0 -m "First shared configuration snapshot"
+
+# Push the tag to GitHub
+git push origin v0.1.0
+```
+
+### 2. Create a GitHub Release for the tag
+
+1. Go to the **Releases** tab in the GitHub UI.
+2. Click **“Draft a new release”**.
+3. Choose the tag you just pushed (for example `v0.1.0`).
+4. Add a short summary, for example:
+   - **Isaacs-MacBook-Pro**: Arc, Ghostty, Neovim, Fish, Git tools
+   - **homelab**: Server essentials, Git, Docker
+   - **PC**: Zen, Ghostty, Neovim, Fish, Steam + gaming tools
+5. Publish the release.
+
+### 3. Deploy a specific release to a machine
+
+Instead of using the local checkout, you can point `--flake` at the GitHub repo + tag:
+
+#### macOS (Isaacs-MacBook-Pro)
+
+```bash
+darwin-rebuild switch \
+  --flake github:isaaclins/configuration?ref=v0.1.0#Isaacs-MacBook-Pro
+```
+
+#### Linux Server (homelab)
+
+```bash
+sudo nixos-rebuild switch \
+  --flake github:isaaclins/configuration?ref=v0.1.0#homelab
+```
+
+#### Linux Desktop (PC)
+
+```bash
+sudo nixos-rebuild switch \
+  --flake github:isaaclins/configuration?ref=v0.1.0#PC
+```
+
+### 4. Roll back to an older snapshot
+
+If a newer change breaks something, just target an older tag:
+
+```bash
+# Example: roll back PC to v0.2.1
+sudo nixos-rebuild switch \
+  --flake github:isaaclins/configuration?ref=v0.2.1#PC
+```
+
+You can keep using `main` for day-to-day work and only cut tags/Releases when you reach a “known good” state you want to pin and roll back to later.
+
 ## Troubleshooting
 
 <!-- This section provides solutions to common problems -->
