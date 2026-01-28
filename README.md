@@ -60,26 +60,26 @@ configurations/
 
 1. **Install Nix** (if not already installed):
 
+   ##### This command installs the Nix package manager on macOS
+
    ```bash
-   # This command installs the Nix package manager on macOS
    curl -L https://nixos.org/nix/install | sh
    ```
 
 2. **Enable Flakes** (add to `~/.config/nix/nix.conf`):
 
-   ```bash
-   # Flakes are an experimental feature that must be enabled
-   # Create the config directory if it doesn't exist
-   mkdir -p ~/.config/nix
+   ##### Flakes are an experimental feature that must be enabled
 
-   # Add the experimental features line to enable flakes
-   echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
+   ##### This command creates the config directory if it doesn't exist
+
+   ```bash
+   mkdir -p ~/.config/nix && echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
    ```
 
 3. **Install nix-darwin** (first time only):
+   ##### Bootstrap nix-darwin using this flake
+   ##### Replace <hostname> with your machine name (e.g., Isaacs-MacBook-Pro)
    ```bash
-   # Bootstrap nix-darwin using this flake
-   # Replace <hostname> with your machine name (e.g., Isaacs-MacBook-Pro)
    nix run nix-darwin -- switch --flake .#<hostname>
    ```
 
@@ -89,14 +89,15 @@ configurations/
 
 1. **Enable Flakes** (add to `/etc/nixos/configuration.nix`):
 
+   ##### This enables the experimental flakes feature system-wide
+
    ```nix
-   # This enables the experimental flakes feature system-wide
    nix.settings.experimental-features = [ "nix-command" "flakes" ];
    ```
 
 2. **Rebuild** to apply the flakes setting:
+   ##### This applies the configuration change
    ```bash
-   # Apply the configuration change
    sudo nixos-rebuild switch
    ```
 
@@ -107,42 +108,30 @@ configurations/
 ### macOS (Isaacs-MacBook-Pro)
 
 ```bash
-# Clone the configuration repository (first time only)
-git clone https://github.com/isaaclins/configuration.git ~/.config/nix/configuration
+# Clone the configuration repository  and navigate to the configuration directory
+git clone https://github.com/isaaclins/configuration.git ~/.config/nix/configuration && cd ~/.config/nix/configuration
 
-# Navigate to the configuration directory
-cd ~/.config/nix/configuration
-
-# Apply the configuration for this Mac
-# darwin-rebuild reads the flake and applies the darwinConfiguration
+# then run:
 darwin-rebuild switch --flake .#Isaacs-MacBook-Pro
 ```
 
 ### Linux Server (homelab)
 
 ```bash
-# Clone the configuration repository (first time only)
-git clone https://github.com/isaaclins/configuration.git ~/.config/nix/configuration
+# Clone the configuration repository  and navigate to the configuration directory
+git clone https://github.com/isaaclins/configuration.git ~/.config/nix/configuration && cd ~/.config/nix/configuration
 
-# Navigate to the configuration directory
-cd ~/.config/nix/configuration
-
-# Apply the configuration for the server
-# sudo is required because NixOS modifies system files
+# then run:
 sudo nixos-rebuild switch --flake .#homelab
 ```
 
 ### Linux Desktop (PC)
 
 ```bash
-# Clone the configuration repository (first time only)
+# Clone the configuration repository  and navigate to the configuration directory
 git clone https://github.com/isaaclins/configuration.git ~/.config/nix/configuration
 
-# Navigate to the configuration directory
-cd ~/.config/nix/configuration
-
-# Apply the configuration for the desktop
-# sudo is required because NixOS modifies system files
+# then run:
 sudo nixos-rebuild switch --flake .#PC
 ```
 
