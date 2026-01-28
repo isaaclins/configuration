@@ -11,38 +11,22 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
-
 jobs:
-  build:
-    name: "Build Pages content"
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - name: Prepare Pages content
-        run: |
-          mkdir -p public
-          # Copy the bootstrap script as index.html so /<reponame>/ serves it directly
-          cp scripts/bootstrap.sh public/index.html
+      - name: Prepare artifact (copy bootstrap to repo root)
+        run: cp scripts/bootstrap.sh bootstrap.sh
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload artifact for GitHub Pages deployment
+        uses: actions/upload-pages-artifact@v4
         with:
-          path: public
-
-  deploy:
-    name: "Deploy to GitHub Pages"
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Configure Pages
-        id: pages
-        uses: actions/configure-pages@v4
+          # Upload root directory so bootstrap.sh is served at /configuration/bootstrap.sh
+          path: "."
 
       - name: Deploy to GitHub Pages
         id: deployment
