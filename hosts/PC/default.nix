@@ -170,26 +170,28 @@
   # ========================================================================== #
   # Configure the graphical desktop environment.                               #
   # ========================================================================== #
-  services.xserver = {
-    enable = true; # Enable the X Window System
+  # ========================================================================== #
+  # DESKTOP ENVIRONMENT                                                        #
+  # ========================================================================== #
+  # Configure the graphical desktop environment.                               #
+  # ========================================================================== #
+  services.xserver.enable = true; # Enable the X Window System
 
-    # ------------------------------------------------------------------------ #
-    # Display Manager                                                          #
-    # ------------------------------------------------------------------------ #
-    # The display manager handles login screens.                               #
-    # GDM is GNOME's display manager; alternatives: SDDM, LightDM.             #
-    # ------------------------------------------------------------------------ #
-    displayManager.gdm.enable = true; # Enable GDM (GNOME Display Manager)
+  # -------------------------------------------------------------------------- #
+  # Display Manager                                                            #
+  # -------------------------------------------------------------------------- #
+  # The display manager handles login screens.                                 #
+  # GDM is GNOME's display manager; alternatives: SDDM, LightDM.               #
+  # -------------------------------------------------------------------------- #
+  services.displayManager.gdm.enable = true; # Enable GDM (GNOME Display Manager)
 
-    # ------------------------------------------------------------------------ #
-    # Desktop Environment                                                      #
-    # ------------------------------------------------------------------------ #
-    # GNOME is a popular, polished desktop environment.                        #
-    # Alternatives: KDE Plasma, XFCE, i3, Hyprland, etc.                       #
-    # ------------------------------------------------------------------------ #
-    desktopManager.gnome.enable = true; # Enable GNOME Desktop Environment
-
-  }; # End of services.xserver
+  # -------------------------------------------------------------------------- #
+  # Desktop Environment                                                        #
+  # -------------------------------------------------------------------------- #
+  # GNOME is a popular, polished desktop environment.                          #
+  # Alternatives: KDE Plasma, XFCE, i3, Hyprland, etc.                         #
+  # -------------------------------------------------------------------------- #
+  services.desktopManager.gnome.enable = true; # Enable GNOME Desktop Environment
 
   # ========================================================================== #
   # GRAPHICS DRIVERS                                                           #
@@ -357,7 +359,7 @@
   # ========================================================================== #
   fonts.packages = with pkgs; [
     noto-fonts # Google Noto fonts (wide language support)
-    noto-fonts-cjk # Chinese, Japanese, Korean fonts
+    noto-fonts-cjk-sans # Chinese, Japanese, Korean fonts (sans-serif variant)
     noto-fonts-emoji # Emoji support
     liberation_ttf # Liberation fonts (metric-compatible with MS fonts)
     fira-code # Fira Code - programming font with ligatures
