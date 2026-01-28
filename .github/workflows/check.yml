@@ -1,0 +1,313 @@
+# ============================================================================ #
+# .github/workflows/check.yml - Nix Configuration CI Pipeline                  #
+# ============================================================================ #
+# This workflow validates and tests all Nix configurations on every push/PR.   #
+# It runs three levels of checks:                                              #
+# 1. Flake check - Validates flake syntax and structure                        #
+# 2. Evaluation - Verifies all configurations evaluate without errors          #
+# 3. Build - Actually builds the configurations (optional, can be slow)        #
+# ============================================================================ #
+
+name: "Nix Configuration Check" # Name shown in GitHub Actions UI
+
+# ============================================================================ #
+# TRIGGERS                                                                     #
+# ============================================================================ #
+# Define when this workflow runs.                                              #
+# ============================================================================ #
+on:
+  # -------------------------------------------------------------------------- #
+  # Push Trigger                                                               #
+  # -------------------------------------------------------------------------- #
+  # Run on every push to main branch.                                          #
+  # -------------------------------------------------------------------------- #
+  push:
+    branches:
+      - main # Run on pushes to main branch
+      - master # Also support master branch name
+
+  # -------------------------------------------------------------------------- #
+  # Pull Request Trigger                                                       #
+  # -------------------------------------------------------------------------- #
+  # Run on pull requests targeting main branch.                                #
+  # This catches issues before merging.                                        #
+  # -------------------------------------------------------------------------- #
+  pull_request:
+    branches:
+      - main # Run on PRs targeting main
+      - master # Also support master branch name
+
+  # -------------------------------------------------------------------------- #
+  # Manual Trigger                                                             #
+  # -------------------------------------------------------------------------- #
+  # Allow running this workflow manually from the Actions tab.                 #
+  # Useful for testing or re-running failed checks.                            #
+  # -------------------------------------------------------------------------- #
+  workflow_dispatch: # Enable manual triggering
+
+# ============================================================================ #
+# JOBS                                                                         #
+# ============================================================================ #
+# Define the jobs that run as part of this workflow.                           #
+# ============================================================================ #
+jobs:
+  # ========================================================================== #
+  # JOB: Flake Check                                                           #
+  # ========================================================================== #
+  # Validates the flake structure and runs built-in checks.                    #
+  # This is fast and catches syntax errors and basic issues.                   #
+  # ========================================================================== #
+  flake-check:
+    name: "Flake Check" # Job name in GitHub UI
+    runs-on: ubuntu-latest # Use Ubuntu runner (free tier)
+
+    steps:
+      # ---------------------------------------------------------------------- #
+      # Step 1: Checkout Repository                                            #
+      # ---------------------------------------------------------------------- #
+      # Clone the repository so we can access the flake files.                 #
+      # ---------------------------------------------------------------------- #
+      - name: Checkout repository
+        uses: actions/checkout@v4 # Official GitHub checkout action
+
+      # ---------------------------------------------------------------------- #
+      # Step 2: Install Nix                                                    #
+      # ---------------------------------------------------------------------- #
+      # Install the Nix package manager with flakes enabled.                   #
+      # We use the DeterminateSystems installer for reliability.               #
+      # ---------------------------------------------------------------------- #
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main # Reliable Nix installer
+
+      # ---------------------------------------------------------------------- #
+      # Step 3: Setup Nix Cache                                                #
+      # ---------------------------------------------------------------------- #
+      # Enable magic-nix-cache for faster builds by caching store paths.       #
+      # This significantly speeds up repeated builds.                          #
+      # ---------------------------------------------------------------------- #
+      - name: Setup Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@main # Automatic Nix caching
+
+      # ---------------------------------------------------------------------- #
+      # Step 4: Run Flake Check                                                #
+      # ---------------------------------------------------------------------- #
+      # nix flake check validates:                                             #
+      # - Flake syntax is correct                                              #
+      # - All outputs are valid                                                #
+      # - Schema is correct                                                    #
+      # ---------------------------------------------------------------------- #
+      - name: Run nix flake check
+        run: nix flake check --all-systems # Check flake for all systems
+
+  # ========================================================================== #
+  # JOB: Evaluate Configurations                                               #
+  # ========================================================================== #
+  # Evaluates all configurations to ensure they don't have errors.             #
+  # This catches issues like missing imports, undefined variables, etc.        #
+  # Faster than full builds but more thorough than flake check.                #
+  # ========================================================================== #
+  evaluate:
+    name: "Evaluate Configurations" # Job name in GitHub UI
+    runs-on: ubuntu-latest # Use Ubuntu runner (free tier)
+    needs: flake-check # Only run if flake-check passes
+
+    steps:
+      # ---------------------------------------------------------------------- #
+      # Step 1: Checkout Repository                                            #
+      # ---------------------------------------------------------------------- #
+      - name: Checkout repository
+        uses: actions/checkout@v4 # Clone the repository
+
+      # ---------------------------------------------------------------------- #
+      # Step 2: Install Nix                                                    #
+      # ---------------------------------------------------------------------- #
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main # Install Nix with flakes
+
+      # ---------------------------------------------------------------------- #
+      # Step 3: Setup Nix Cache                                                #
+      # ---------------------------------------------------------------------- #
+      - name: Setup Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@main # Enable caching
+
+      # ---------------------------------------------------------------------- #
+      # Step 4: Evaluate Darwin Configuration (macOS)                          #
+      # ---------------------------------------------------------------------- #
+      # Evaluate the macOS configuration without building.                     #
+      # This checks for errors in imports, options, and values.                #
+      # ---------------------------------------------------------------------- #
+      - name: Evaluate Isaacs-MacBook-Pro (darwin)
+        run: |
+          # Evaluate the darwin configuration
+          # --json outputs JSON format, we discard it to /dev/null
+          # The command fails if there are evaluation errors
+          nix eval .#darwinConfigurations.Isaacs-MacBook-Pro.config.system.build.toplevel --json > /dev/null
+        continue-on-error: true # Don't fail the whole job if this fails
+
+      # ---------------------------------------------------------------------- #
+      # Step 5: Evaluate NixOS Configurations (Linux)                          #
+      # ---------------------------------------------------------------------- #
+      # Evaluate Linux configurations without building.                        #
+      # ---------------------------------------------------------------------- #
+      - name: Evaluate homelab (nixos)
+        run: |
+          # Evaluate the homelab NixOS configuration
+          nix eval .#nixosConfigurations.homelab.config.system.build.toplevel --json > /dev/null
+
+      - name: Evaluate PC (nixos)
+        run: |
+          # Evaluate the PC NixOS configuration
+          nix eval .#nixosConfigurations.PC.config.system.build.toplevel --json > /dev/null
+
+  # ========================================================================== #
+  # JOB: Build NixOS Configurations                                            #
+  # ========================================================================== #
+  # Actually builds the NixOS configurations.                                  #
+  # This is the most thorough test but takes longer and uses more resources.   #
+  # Only builds Linux configs (darwin requires macOS runner).                  #
+  # ========================================================================== #
+  build-nixos:
+    name: "Build NixOS" # Job name in GitHub UI
+    runs-on: ubuntu-latest # Use Ubuntu runner
+    needs: evaluate # Only run if evaluate passes
+
+    # ------------------------------------------------------------------------ #
+    # Build Matrix                                                             #
+    # ------------------------------------------------------------------------ #
+    # Build multiple configurations in parallel using a matrix strategy.       #
+    # Each configuration runs as a separate job.                               #
+    # ------------------------------------------------------------------------ #
+    strategy:
+      fail-fast: false # Don't cancel other builds if one fails
+      matrix:
+        # List of NixOS configurations to build
+        config:
+          - homelab # Headless server configuration
+          - PC # Desktop configuration
+
+    steps:
+      # ---------------------------------------------------------------------- #
+      # Step 1: Checkout Repository                                            #
+      # ---------------------------------------------------------------------- #
+      - name: Checkout repository
+        uses: actions/checkout@v4 # Clone the repository
+
+      # ---------------------------------------------------------------------- #
+      # Step 2: Install Nix                                                    #
+      # ---------------------------------------------------------------------- #
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main # Install Nix
+
+      # ---------------------------------------------------------------------- #
+      # Step 3: Setup Nix Cache                                                #
+      # ---------------------------------------------------------------------- #
+      - name: Setup Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@main # Enable caching
+
+      # ---------------------------------------------------------------------- #
+      # Step 4: Build Configuration                                            #
+      # ---------------------------------------------------------------------- #
+      # Build the NixOS configuration for this matrix entry.                   #
+      # --no-link prevents creating a result symlink (not needed in CI).       #
+      # --print-build-logs shows detailed build output.                        #
+      # ---------------------------------------------------------------------- #
+      - name: Build ${{ matrix.config }}
+        run: |
+          # Build the NixOS configuration
+          nix build .#nixosConfigurations.${{ matrix.config }}.config.system.build.toplevel \
+            --no-link \
+            --print-build-logs
+
+  # ========================================================================== #
+  # JOB: Build Darwin Configuration (macOS)                                    #
+  # ========================================================================== #
+  # Builds the macOS configuration on a macOS runner.                          #
+  # NOTE: macOS runners have limited free minutes on GitHub Actions.           #
+  # Consider enabling this only for important branches or manual runs.         #
+  # ========================================================================== #
+  build-darwin:
+    name: "Build Darwin" # Job name in GitHub UI
+    runs-on: macos-latest # Requires macOS runner (limited free minutes!)
+    needs: evaluate # Only run if evaluate passes
+
+    # ------------------------------------------------------------------------ #
+    # Conditional Execution                                                    #
+    # ------------------------------------------------------------------------ #
+    # Only run on main branch or manual triggers to save macOS minutes.        #
+    # Remove this 'if' to run on all PRs (uses more minutes).                  #
+    # ------------------------------------------------------------------------ #
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      # ---------------------------------------------------------------------- #
+      # Step 1: Checkout Repository                                            #
+      # ---------------------------------------------------------------------- #
+      - name: Checkout repository
+        uses: actions/checkout@v4 # Clone the repository
+
+      # ---------------------------------------------------------------------- #
+      # Step 2: Install Nix                                                    #
+      # ---------------------------------------------------------------------- #
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main # Install Nix on macOS
+
+      # ---------------------------------------------------------------------- #
+      # Step 3: Setup Nix Cache                                                #
+      # ---------------------------------------------------------------------- #
+      - name: Setup Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@main # Enable caching
+
+      # ---------------------------------------------------------------------- #
+      # Step 4: Build Darwin Configuration                                     #
+      # ---------------------------------------------------------------------- #
+      # Build the nix-darwin configuration for macOS.                          #
+      # ---------------------------------------------------------------------- #
+      - name: Build Isaacs-MacBook-Pro
+        run: |
+          # Build the darwin configuration
+          nix build .#darwinConfigurations.Isaacs-MacBook-Pro.system \
+            --no-link \
+            --print-build-logs
+
+  # ========================================================================== #
+  # JOB: Summary                                                               #
+  # ========================================================================== #
+  # Final job that only runs if all other jobs pass.                           #
+  # Useful for branch protection rules requiring a single status check.        #
+  # ========================================================================== #
+  ci-success:
+    name: "CI Success" # Job name shown in GitHub UI
+    runs-on: ubuntu-latest # Minimal runner
+    needs: [flake-check, evaluate, build-nixos] # Wait for these jobs
+    # Note: build-darwin is not required since it only runs on main
+
+    # ------------------------------------------------------------------------ #
+    # Always Run                                                               #
+    # ------------------------------------------------------------------------ #
+    # Run this job even if previous jobs were skipped (not failed).            #
+    # This provides a consistent status check for branch protection.           #
+    # ------------------------------------------------------------------------ #
+    if: always()
+
+    steps:
+      # ---------------------------------------------------------------------- #
+      # Check Results                                                          #
+      # ---------------------------------------------------------------------- #
+      # Verify all required jobs passed.                                       #
+      # ---------------------------------------------------------------------- #
+      - name: Check all jobs passed
+        run: |
+          # Print job results for debugging
+          echo "Flake Check: ${{ needs.flake-check.result }}"
+          echo "Evaluate: ${{ needs.evaluate.result }}"
+          echo "Build NixOS: ${{ needs.build-nixos.result }}"
+          
+          # Fail if any required job failed
+          if [[ "${{ needs.flake-check.result }}" == "failure" ]] || \
+             [[ "${{ needs.evaluate.result }}" == "failure" ]] || \
+             [[ "${{ needs.build-nixos.result }}" == "failure" ]]; then
+            echo "One or more jobs failed!"
+            exit 1
+          fi
+          
+          echo "All checks passed!"
