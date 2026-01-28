@@ -364,7 +364,6 @@
     liberation_ttf # Liberation fonts (metric-compatible with MS fonts)
     fira-code # Fira Code - programming font with ligatures
     jetbrains-mono # JetBrains Mono - another great programming font
-    (nerdfonts.override { fonts = [ "FiraCode" "JetBrainsMono" ]; }) # Nerd Fonts versions
   ]; # End of fonts.packages
 
   # ========================================================================== #
