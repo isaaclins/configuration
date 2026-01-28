@@ -223,6 +223,79 @@ sudo nixos-rebuild switch --flake .#PC
 | `development/docker.nix` | Docker containers   | homelab                |
 | `server/essentials.nix`  | Server tools        | homelab                |
 
+### Configuration Architecture
+
+```mermaid
+flowchart TD
+  %% Top-level flake and inputs
+  flake["flake.nix"]
+  nixpkgs["nixpkgs input"]
+  darwin["nix-darwin input"]
+  hm["home-manager input"]
+
+  flake --> nixpkgs
+  flake --> darwin
+  flake --> hm
+
+  %% Hosts
+  subgraph hosts [Host system configs]
+    macHost["hosts/Isaacs-MacBook-Pro/default.nix"]
+    homelabHost["hosts/homelab/default.nix"]
+    pcHost["hosts/PC/default.nix"]
+  end
+
+  flake --> macHost
+  flake --> homelabHost
+  flake --> pcHost
+
+  %% Shared system modules
+  subgraph sysModules [Shared system modules]
+    arcMod["modules/browsers/arc.nix"]
+    zenMod["modules/browsers/zen.nix"]
+    ghosttyApp["modules/terminal/ghostty.nix"]
+    neovimMod["modules/editors/neovim.nix"]
+    fishMod["modules/shells/fish.nix"]
+    gitMod["modules/development/git.nix"]
+    dockerMod["modules/development/docker.nix"]
+    serverEssMod["modules/server/essentials.nix"]
+  end
+
+  macHost --> arcMod
+  macHost --> ghosttyApp
+  macHost --> neovimMod
+  macHost --> fishMod
+  macHost --> gitMod
+
+  homelabHost --> gitMod
+  homelabHost --> dockerMod
+  homelabHost --> serverEssMod
+
+  pcHost --> zenMod
+  pcHost --> ghosttyApp
+  pcHost --> neovimMod
+  pcHost --> fishMod
+  pcHost --> gitMod
+
+  %% Home Manager user configs
+  subgraph hmUsers [Home Manager user configs]
+    macHome["hosts/Isaacs-MacBook-Pro/home.nix"]
+    pcHome["hosts/PC/home.nix"]
+  end
+
+  hm --> macHome
+  hm --> pcHome
+
+  %% Shared Ghostty HM module
+  ghosttyHome["modules/terminal/ghostty-home.nix"]
+
+  macHome --> ghosttyHome
+  pcHome --> ghosttyHome
+
+  %% Ghostty application module details
+  ghosttyApp -->|"NixOS system"| pcHost
+  ghosttyApp -->|"Home Manager user (isaac)"| ghosttyHome
+```
+
 ## Updating
 
 <!-- This section explains how to keep configurations up to date -->
