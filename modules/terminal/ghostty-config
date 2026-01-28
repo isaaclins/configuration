@@ -1,0 +1,8 @@
+# Ghostty configuration managed by Home Manager
+# This file will be symlinked to ~/.config/ghostty/config
+#
+# Color format: 6-hex-digit RGB without "#"
+
+# Background color: bright red for easy visual confirmation
+background = ff0000
+

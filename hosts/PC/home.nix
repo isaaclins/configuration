@@ -27,6 +27,19 @@
 # ============================================================================ #
 {
   # ========================================================================== #
+  # IMPORTS - Shared Home Manager Modules                                      #
+  # ========================================================================== #
+  # Import shared Home Manager modules so this user gets the same behavior     #
+  # on any machine that imports them.                                          #
+  # -------------------------------------------------------------------------- #
+  # - fish-home.nix: manages ~/.config/fish/config.fish via a symlink to       #
+  #   modules/shells/config.fish in this repository.                           #
+  # ========================================================================== #
+  imports = [
+    ../../modules/shells/fish-home.nix # Shared Fish config (config.fish)
+  ];
+
+  # ========================================================================== #
   # BASIC USER SETTINGS                                                        #
   # ========================================================================== #
   # These describe which user this Home Manager config applies to.             #

@@ -1,12 +1,12 @@
 # ============================================================================ #
-# modules/terminal/ghostty-home.nix - Shared Home Manager config for Ghostty   #
+# modules/shells/fish-home.nix - Shared Home Manager config for Fish           #
 # ============================================================================ #
-# This Home Manager module centrally defines the Ghostty user configuration.   #
+# This Home Manager module centrally defines the Fish user configuration       #
+# by symlinking a real config.fish file from this repository into the          #
+# user's ~/.config/fish/config.fish.                                           #
 #                                                                             #
-# Any Home Manager user that imports this module will get a                    #
-# ~/.config/ghostty/config file with the same settings.                        #
-#                                                                             #
-# This keeps Ghostty config DRY across multiple machines (Mac, PC, etc.).     #
+# Any Home Manager user that imports this module will get the same Fish        #
+# configuration file.                                                          #
 # ============================================================================ #
 
 {
@@ -21,13 +21,12 @@
 # ============================================================================ #
 {
   # ========================================================================== #
-  # GHOSTTY CONFIGURATION                                                      #
+  # FISH CONFIGURATION                                                         #
   # ========================================================================== #
-  # Manage Ghostty's config file in ~/.config/ghostty/config.                  #
-  # This ensures the same settings on every rebuild for any user that          #
-  # imports this module.                                                       #
+  # Manage Fish's config file in ~/.config/fish/config.fish by symlinking      #
+  # the version tracked in this repository.                                    #
   # ========================================================================== #
-  home.file.".config/ghostty/config".source = ./ghostty-config;
+  home.file.".config/fish/config.fish".source = ./config.fish;
 
 } # End of Home Manager configuration
 
