@@ -151,6 +151,7 @@ If you prefer not to use the bootstrap script, you can apply the configs manuall
 1. **Ensure prerequisites** (Nix, flakes, nix-darwin / NixOS) as described above.
 
 2. **Choose a directory for the repo** (default: `~/.config/nix/configuration`):
+
    ```bash
    export CONFIG_DIR="$HOME/.config/nix/configuration"
    ```
