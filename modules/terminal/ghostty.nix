@@ -1,51 +1,112 @@
 # ============================================================================ #
-# modules/terminal/ghostty.nix - Ghostty Terminal Configuration (NixOS)        #
+#
+# modules/terminal/ghostty.nix - Ghostty Terminal Application Module           #
 # ============================================================================ #
-# This module installs and configures the Ghostty terminal emulator on Linux.  #
-# Ghostty is a fast, feature-rich, GPU-accelerated terminal.                   #
-# NOTE: This module is for NixOS (Linux) only.                                 #
-# For macOS, Ghostty is installed via Homebrew in the host config.             #
+# This module provides an \"application layer\" for Ghostty:                    #
+# - On NixOS, it installs the Ghostty terminal system-wide and enables GPU.    #
+# - On any system with Home Manager (macOS or NixOS), it wires in a shared     #
+#   Home Manager module that writes ~/.config/ghostty/config (background red). #
+#                                                                             #
+# Hosts only need to:                                                          #
+#   1. Import this module in their system `imports` list                       #
+#   2. Set `ghostty.enable = true;`                                            #
+#                                                                             #
 # Project: https://ghostty.org                                                 #
 # ============================================================================ #
 
 { 
-  config, # The current system configuration (allows reading other options)
+  config, # The current system configuration (options and values)
   pkgs,   # The nixpkgs package set (contains all available packages)
   lib,    # Nix library functions (for conditionals, types, etc.)
   ...     # Allows other arguments to pass through (future compatibility)
-}: # Function argument set - this is a NixOS module
+}: # Function argument set - this is a NixOS/nix-darwin module
+
+let
+  # -------------------------------------------------------------------------- #
+  # Short aliases for frequently used lib functions                            #
+  # -------------------------------------------------------------------------- #
+  inherit (lib) mkEnableOption mkIf mkMerge optionalAttrs;
+
+  # -------------------------------------------------------------------------- #
+  # Convenience flags for platform detection                                   #
+  # -------------------------------------------------------------------------- #
+  isLinux = pkgs.stdenv.isLinux; # True on NixOS and other Linux systems
+in
 
 # ============================================================================ #
-# MODULE CONFIGURATION                                                         #
+# OPTIONS                                                                      #
 # ============================================================================ #
-# This attribute set defines what this module adds to the system.              #
+# Define a small options namespace for this application module.                #
 # ============================================================================ #
 {
-  # ========================================================================== #
-  # SYSTEM PACKAGES                                                            #
-  # ========================================================================== #
-  # Install Ghostty system-wide for all users.                                 #
-  # Note: ghostty may need to be installed from a flake if not in nixpkgs.     #
-  # ========================================================================== #
-  environment.systemPackages = with pkgs; [
+  options.ghostty = {
     # ------------------------------------------------------------------------ #
-    # Ghostty Terminal                                                         #
+    # ghostty.enable                                                            #
     # ------------------------------------------------------------------------ #
-    # A fast, feature-rich, GPU-accelerated terminal emulator.                 #
-    # If ghostty is not yet in nixpkgs, you may need to:                       #
-    # 1. Add the ghostty flake as an input in flake.nix                        #
-    # 2. Use an overlay to make it available in pkgs                           #
+    # Turn on Ghostty (install + config) for this host.                         #
     # ------------------------------------------------------------------------ #
-    ghostty # Ghostty terminal - GPU-accelerated terminal emulator
-  ]; # End of systemPackages list
+    enable = mkEnableOption "Ghostty terminal with shared user config";
+
+    # ------------------------------------------------------------------------ #
+    # ghostty.user                                                              #
+    # ------------------------------------------------------------------------ #
+    # Username whose Home Manager session should get the Ghostty config.       #
+    # Defaults to \"isaac\" to match this repository, but can be overridden     #
+    # per host if needed.                                                       #
+    # ------------------------------------------------------------------------ #
+    user = lib.mkOption {
+      type = lib.types.str;
+      default = "isaac"; # Default primary user
+      description = "Username whose Home Manager config will receive Ghostty settings.";
+    };
+  };
 
   # ========================================================================== #
-  # OPENGL FOR GPU ACCELERATION                                                #
+  # CONFIGURATION                                                              #
   # ========================================================================== #
-  # Ghostty uses GPU rendering for smooth performance.                         #
-  # On newer NixOS versions, enabling hardware.opengl is enough;               #
-  # driSupport and driSupport32Bit are now no-ops and should be omitted.      #
+  # Apply system-level and user-level configuration when ghostty.enable = true #
   # ========================================================================== #
-  hardware.graphics.enable = true; # Enable OpenGL support for GPU-accelerated rendering
+  config = mkIf config.ghostty.enable (mkMerge [
+    # ======================================================================== #
+    # NixOS SYSTEM CONFIGURATION (Linux only)                                  #
+    # ======================================================================== #
+    # Install Ghostty and enable GPU acceleration on Linux systems.            #
+    # This part is skipped on macOS; on macOS Ghostty is installed via         #
+    # Homebrew in the host configuration.                                      #
+    # ======================================================================== #
+    (optionalAttrs isLinux {
+      # ---------------------------------------------------------------------- #
+      # System packages                                                        #
+      # ---------------------------------------------------------------------- #
+      environment.systemPackages = with pkgs; [
+        ghostty # Ghostty terminal - GPU-accelerated terminal emulator
+      ];
 
-} # End of module configuration
+      # ---------------------------------------------------------------------- #
+      # GPU / graphics                                                         #
+      # ---------------------------------------------------------------------- #
+      # On newer NixOS versions, hardware.graphics.enable is the preferred     #
+      # way to turn on GPU support.                                            #
+      # ---------------------------------------------------------------------- #
+      hardware.graphics.enable = true; # Enable GPU support for Ghostty
+    })
+
+    # ======================================================================== #
+    # HOME MANAGER USER CONFIGURATION (macOS + NixOS)                          #
+    # ======================================================================== #
+    # Wire in the shared Home Manager module that writes                       #
+    # ~/.config/ghostty/config for the selected user.                          #
+    #                                                                           #
+    # NOTE: This assumes that Home Manager is imported in your system          #
+    # configuration (as done in flake.nix for this repo), so the               #
+    # `home-manager.users` option namespace exists.                            #
+    # ======================================================================== #
+    {
+      home-manager.users.${config.ghostty.user}.imports = [
+        ./ghostty-home.nix # Shared Ghostty Home Manager module (background red)
+      ];
+    }
+  ]);
+
+} # End of module definition
+

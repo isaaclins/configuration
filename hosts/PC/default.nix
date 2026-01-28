@@ -41,9 +41,10 @@
     # Terminal - Ghostty                                                       #
     # ------------------------------------------------------------------------ #
     # Ghostty terminal emulator - fast, GPU-accelerated.                       #
-    # Installed via nixpkgs on Linux.                                          #
+    # This application module installs Ghostty on NixOS and wires in a         #
+    # shared Home Manager config so ~/.config/ghostty/config is consistent.    #
     # ------------------------------------------------------------------------ #
-    ../../modules/terminal/ghostty.nix # Import Ghostty terminal module
+    ../../modules/terminal/ghostty.nix # Import Ghostty application module
 
     # ------------------------------------------------------------------------ #
     # Editor - Neovim                                                          #
@@ -164,6 +165,15 @@
   # Configure the nixpkgs settings.                                            #
   # ========================================================================== #
   nixpkgs.config.allowUnfree = true; # Allow packages with unfree licenses (NVIDIA, Steam)
+
+  # ========================================================================== #
+  # GHOSTTY APPLICATION SETTINGS                                               #
+  # ========================================================================== #
+  # Enable the Ghostty application module for this host.                       #
+  # This installs Ghostty on NixOS and wires the shared user config           #
+  # via Home Manager for user \"isaac\".                                       #
+  # ========================================================================== #
+  ghostty.enable = true; # Turn on Ghostty (system + user config)
 
   # ========================================================================== #
   # DESKTOP ENVIRONMENT                                                        #

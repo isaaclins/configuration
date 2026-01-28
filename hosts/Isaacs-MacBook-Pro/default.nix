@@ -39,9 +39,14 @@
     ../../modules/browsers/arc.nix # Import Arc browser module
 
     # ------------------------------------------------------------------------ #
-    # NOTE: Ghostty is installed via Homebrew casks below (macOS-specific).    #
-    # The ghostty.nix module is for NixOS (Linux) only.                        #
+    # Terminal - Ghostty                                                       #
     # ------------------------------------------------------------------------ #
+    # Ghostty terminal emulator - fast, GPU-accelerated.                       #
+    # On macOS this application module wires in the shared Home Manager        #
+    # config so ~/.config/ghostty/config is consistent across hosts.          #
+    # Installation of the app itself is still handled via Homebrew casks.      #
+    # ------------------------------------------------------------------------ #
+    ../../modules/terminal/ghostty.nix # Import Ghostty application module
 
     # ------------------------------------------------------------------------ #
     # Editor - Neovim                                                          #
@@ -117,6 +122,15 @@
     config.allowUnfree = true; # Allow packages with unfree licenses
 
   }; # End of nixpkgs configuration
+
+  # ========================================================================== #
+  # GHOSTTY APPLICATION SETTINGS                                               #
+  # ========================================================================== #
+  # Enable the Ghostty application module for this host.                       #
+  # On macOS this only wires in the shared Home Manager config for user       #
+  # \"isaac\"; the app itself is installed via Homebrew casks above.          #
+  # ========================================================================== #
+  ghostty.enable = true; # Turn on Ghostty user config (macOS)
 
   # ========================================================================== #
   # SYSTEM PACKAGES                                                            #
