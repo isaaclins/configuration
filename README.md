@@ -27,13 +27,12 @@ If you just want to install one of the provided machine profiles and keep it up 
      ```bash
      curl -L https://nixos.org/nix/install | sh
      mkdir -p ~/.config/nix
-     echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
      ```
 
      If you haven’t installed `nix-darwin` yet, do so once:
 
      ```bash
-     nix run nix-darwin -- switch --flake github:LnL7/nix-darwin
+     sudo nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake github:LnL7/nix-darwin
      ```
 
    - On **NixOS**:
