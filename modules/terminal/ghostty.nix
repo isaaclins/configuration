@@ -21,18 +21,6 @@
   ...     # Allows other arguments to pass through (future compatibility)
 }: # Function argument set - this is a NixOS/nix-darwin module
 
-let
-  # -------------------------------------------------------------------------- #
-  # Short aliases for frequently used lib functions                            #
-  # -------------------------------------------------------------------------- #
-  inherit (lib) mkEnableOption mkIf mkMerge optionalAttrs;
-
-  # -------------------------------------------------------------------------- #
-  # Convenience flags for platform detection                                   #
-  # -------------------------------------------------------------------------- #
-  isLinux = pkgs.stdenv.isLinux; # True on NixOS and other Linux systems
-in
-
 # ============================================================================ #
 # OPTIONS                                                                      #
 # ============================================================================ #
@@ -66,7 +54,7 @@ in
   # ========================================================================== #
   # Apply system-level and user-level configuration when ghostty.enable = true #
   # ========================================================================== #
-  config = mkIf config.ghostty.enable (mkMerge [
+  config = lib.mkIf config.ghostty.enable (lib.mkMerge [
     # ======================================================================== #
     # NixOS SYSTEM CONFIGURATION (Linux only)                                  #
     # ======================================================================== #
@@ -74,7 +62,7 @@ in
     # This part is skipped on macOS; on macOS Ghostty is installed via         #
     # Homebrew in the host configuration.                                      #
     # ======================================================================== #
-    (optionalAttrs isLinux {
+    (lib.optionalAttrs pkgs.stdenv.isLinux {
       # ---------------------------------------------------------------------- #
       # System packages                                                        #
       # ---------------------------------------------------------------------- #
