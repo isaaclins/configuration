@@ -15,7 +15,52 @@ This repository contains declarative system configurations for multiple machines
 | -------------------- | -------------- | ---------- | ------------------------------ |
 | `Isaacs-MacBook-Pro` | aarch64-darwin | nix-darwin | macOS development workstation  |
 | `homelab`            | x86_64-linux   | NixOS      | Headless Linux server (no GUI) |
-| `PC`                 | x86_64-linux   | NixOS      | Linux desktop with gaming      |
+| `PC`                 | x86_64-linux   | Ubuntu     | Linux desktop with gaming      |
+
+## Quick start (one-command bootstrap)
+
+If you just want to install one of the provided machine profiles and keep it up to date, use the bootstrap script.
+
+1. **Install Nix and enable flakes**
+   - On **macOS**:
+
+     ```bash
+     curl -L https://nixos.org/nix/install | sh
+     mkdir -p ~/.config/nix
+     echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
+     ```
+
+     If you haven’t installed `nix-darwin` yet, do so once:
+
+     ```bash
+     nix run nix-darwin -- switch --flake github:LnL7/nix-darwin
+     ```
+
+   - On **NixOS**:
+     Ensure flakes are enabled in `/etc/nixos/configuration.nix`:
+     ```nix
+     nix.settings.experimental-features = [ "nix-command" "flakes" ];
+     ```
+     Then apply the change:
+     ```bash
+     sudo nixos-rebuild switch
+     ```
+
+2. **Run the bootstrap script**
+
+   ```bash
+   bash <(curl -fsSL https://github.com/isaaclins/configuration/raw/main/scripts/bootstrap.sh)
+   ```
+
+   The script will:
+   - Detect whether you’re on **macOS** or **NixOS**
+   - Ensure the config repo exists at `~/.config/nix/configuration` (clone if needed, or `git pull` if it’s already there)
+   - On **Linux**, prompt you to choose between the `PC` (desktop) and `homelab` (server) profiles
+   - Run the correct `darwin-rebuild` or `nixos-rebuild` command for the selected host
+
+3. **Log out / reboot if needed**
+
+   Some settings (especially display managers and macOS system prefs) may require a logout or reboot to fully take effect.
 
 ## Repository Structure
 
@@ -77,10 +122,8 @@ configurations/
    ```
 
 3. **Install nix-darwin** (first time only):
-   ##### Bootstrap nix-darwin using this flake
-   ##### Replace <hostname> with your machine name (e.g., Isaacs-MacBook-Pro)
    ```bash
-   nix run nix-darwin -- switch --flake .#<hostname>
+   nix run nix-darwin -- switch --flake github:LnL7/nix-darwin
    ```
 
 ### For NixOS
@@ -101,39 +144,43 @@ configurations/
    sudo nixos-rebuild switch
    ```
 
-## Deployment
+## Deployment (manual, without bootstrap script)
 
-<!-- This section explains how to apply configurations to each machine -->
+If you prefer not to use the bootstrap script, you can apply the configs manually:
 
-### macOS (Isaacs-MacBook-Pro)
+1. **Ensure prerequisites** (Nix, flakes, nix-darwin / NixOS) as described above.
 
-```bash
-# Clone the configuration repository  and navigate to the configuration directory
-git clone https://github.com/isaaclins/configuration.git ~/.config/nix/configuration && cd ~/.config/nix/configuration
+2. **Choose a directory for the repo** (default: `~/.config/nix/configuration`):
+   ```bash
+   export CONFIG_DIR="$HOME/.config/nix/configuration"
+   ```
 
-# then run:
-darwin-rebuild switch --flake .#Isaacs-MacBook-Pro
-```
+3. **Clone or update the repo**:
+   - First time:
+     ```bash
+     mkdir -p "$(dirname "$CONFIG_DIR")"
+     git clone https://github.com/isaaclins/configuration.git "$CONFIG_DIR"
+     cd "$CONFIG_DIR"
+     ```
+   - Already cloned:
+     ```bash
+     cd "$CONFIG_DIR"
+     git pull --ff-only
+     ```
 
-### Linux Server (homelab)
-
-```bash
-# Clone the configuration repository  and navigate to the configuration directory
-git clone https://github.com/isaaclins/configuration.git ~/.config/nix/configuration && cd ~/.config/nix/configuration
-
-# then run:
-sudo nixos-rebuild switch --flake .#homelab
-```
-
-### Linux Desktop (PC)
-
-```bash
-# Clone the configuration repository  and navigate to the configuration directory
-git clone https://github.com/isaaclins/configuration.git ~/.config/nix/configuration
-
-# then run:
-sudo nixos-rebuild switch --flake .#PC
-```
+4. **Apply the desired host profile**:
+   - **macOS (Isaacs-MacBook-Pro)**:
+     ```bash
+     darwin-rebuild switch --flake .#Isaacs-MacBook-Pro
+     ```
+   - **Linux server (homelab)**:
+     ```bash
+     sudo nixos-rebuild switch --flake .#homelab
+     ```
+   - **Linux desktop (PC)**:
+     ```bash
+     sudo nixos-rebuild switch --flake .#PC
+     ```
 
 ## Adding a New Machine
 
