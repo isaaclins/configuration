@@ -11,10 +11,11 @@
 # ============================================================================ #
 
 { 
-  config, # The current Home Manager configuration (options and values)
-  pkgs,   # The nixpkgs package set available to Home Manager
-  lib,    # Nix library functions (for conditionals, types, etc.)
-  ...     # Allows other arguments to pass through (future compatibility)
+  config,      # The current Home Manager configuration (options and values)
+  pkgs,        # The nixpkgs package set available to Home Manager
+  lib,         # Nix library functions (for conditionals, types, etc.)
+  primaryUser, # Primary username (passed from flake via extraSpecialArgs)
+  ...          # Allows other arguments to pass through (future compatibility)
 }: # Function argument set - this is a Home Manager module
 
 # ============================================================================ #
@@ -27,11 +28,10 @@
   # ========================================================================== #
   # BASIC USER SETTINGS                                                        #
   # ========================================================================== #
-  # These describe which user this Home Manager config applies to.             #
-  # They must match the Linux username and home directory.                     #
+  # Set from primaryUser (current user; default "isaaclins" if unset).         #
   # ========================================================================== #
-  home.username = "isaaclins"; # NixOS account name for this user
-  home.homeDirectory = "/home/isaaclins"; # Home directory path on NixOS
+  home.username = primaryUser;
+  home.homeDirectory = "/home/${primaryUser}";
 
   # ========================================================================== #
   # STATE VERSION                                                              #

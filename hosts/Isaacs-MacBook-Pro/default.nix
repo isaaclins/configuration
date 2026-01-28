@@ -11,10 +11,11 @@
 # ============================================================================ #
 
 { 
-  config, # The current system configuration (allows reading other options)
-  pkgs,   # The nixpkgs package set (contains all available packages)
-  lib,    # Nix library functions (for conditionals, types, etc.)
-  ...     # Allows other arguments to pass through (future compatibility)
+  config,       # The current system configuration (allows reading other options)
+  pkgs,         # The nixpkgs package set (contains all available packages)
+  lib,          # Nix library functions (for conditionals, types, etc.)
+  primaryUser,  # Primary username (from NIX_CONFIG_PRIMARY_USER or default "isaaclins")
+  ...           # Allows other arguments to pass through (future compatibility)
 }: # Function argument set - this is a nix-darwin module
 
 # ============================================================================ #
@@ -131,7 +132,9 @@
   # - fish: wires in shared Fish config and installs CLI helpers              #
   # ========================================================================== #
   ghostty.enable = true; # Turn on Ghostty user config (macOS)
+  ghostty.user = primaryUser;
   fish.enable = true; # Turn on Fish shell application module (macOS)
+  fish.user = primaryUser;
 
   # ========================================================================== #
   # SYSTEM PACKAGES                                                            #
@@ -321,7 +324,7 @@
   # to a primary user instead of the user running darwin-rebuild.              #
   # Set this to your macOS username.                                           #
   # ========================================================================== #
-  system.primaryUser = "isaaclins"; # Primary user for nix-darwin-managed settings
+  system.primaryUser = primaryUser; # Primary user for nix-darwin-managed settings
 
   # ========================================================================== #
   # SYSTEM STATE VERSION                                                       #

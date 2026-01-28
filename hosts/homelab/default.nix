@@ -11,10 +11,11 @@
 # ============================================================================ #
 
 { 
-  config, # The current system configuration (allows reading other options)
-  pkgs,   # The nixpkgs package set (contains all available packages)
-  lib,    # Nix library functions (for conditionals, types, etc.)
-  ...     # Allows other arguments to pass through (future compatibility)
+  config,       # The current system configuration (allows reading other options)
+  pkgs,         # The nixpkgs package set (contains all available packages)
+  lib,          # Nix library functions (for conditionals, types, etc.)
+  primaryUser,  # Primary username (from NIX_CONFIG_PRIMARY_USER or default "isaaclins")
+  ...           # Allows other arguments to pass through (future compatibility)
 }: # Function argument set - this is a NixOS module
 
 # ============================================================================ #
@@ -210,34 +211,21 @@
   # Define user accounts on the server.                                        #
   # ========================================================================== #
   users.users = {
-    # ------------------------------------------------------------------------ #
-    # Primary Admin User                                                       #
-    # ------------------------------------------------------------------------ #
-    # The main user account for server administration.                         #
-    # Change "isaaclins" to your username.                                     #
-    # ------------------------------------------------------------------------ #
-    isaaclins = {
-      isNormalUser = true; # Create as a normal (non-system) user
-      description = "Isaac Lins"; # User's full name/description
+    # Primary user (default "isaaclins" or set NIX_CONFIG_PRIMARY_USER). Created if only root exists.
+    ${primaryUser} = {
+      isNormalUser = true;
+      description = "Primary admin user";
       extraGroups = [
-        "wheel" # Allow sudo access
-        "docker" # Allow Docker without sudo
-        "networkmanager" # Allow network configuration
-      ]; # End of extraGroups
+        "wheel"
+        "docker"
+        "networkmanager"
+      ];
 
-      # ---------------------------------------------------------------------- #
-      # SSH Authorized Keys                                                    #
-      # ---------------------------------------------------------------------- #
-      # Add your SSH public key here for passwordless login.                   #
-      # Get your public key with: cat ~/.ssh/id_ed25519.pub                    #
-      # ---------------------------------------------------------------------- #
       openssh.authorizedKeys.keys = [
         # "ssh-ed25519 AAAAC3..." # Paste your public key here
-      ]; # End of authorizedKeys
-
-    }; # End of isaaclins user
-
-  }; # End of users.users
+      ];
+    };
+  };
 
   # ========================================================================== #
   # SYSTEM PACKAGES                                                            #

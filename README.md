@@ -139,6 +139,14 @@ This repo provides two NixOS profiles: **homelab** (server) and **PC** (desktop)
    sudo nixos-rebuild switch --flake .#PC
    ```
 
+**Primary user:** The config creates and uses one primary user (default `isaaclins`). To use a different username, set it when building:
+
+```bash
+NIX_CONFIG_PRIMARY_USER=yourusername sudo nixos-rebuild switch --flake .#PC
+```
+
+(Works for homelab, PC, and macOS with `darwin-rebuild`.) If only root exists, that user is created by the config.
+
 ## Deployment (manual, without bootstrap script)
 
 Clone or update the repo yourself, then run the apply command for your OS.

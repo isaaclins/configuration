@@ -11,10 +11,11 @@
 # ============================================================================ #
 
 { 
-  config, # The current system configuration (allows reading other options)
-  pkgs,   # The nixpkgs package set (contains all available packages)
-  lib,    # Nix library functions (for conditionals, types, etc.)
-  ...     # Allows other arguments to pass through (future compatibility)
+  config,       # The current system configuration (allows reading other options)
+  pkgs,         # The nixpkgs package set (contains all available packages)
+  lib,          # Nix library functions (for conditionals, types, etc.)
+  primaryUser,  # Primary username (from NIX_CONFIG_PRIMARY_USER or default "isaaclins")
+  ...           # Allows other arguments to pass through (future compatibility)
 }: # Function argument set - this is a NixOS module
 
 # ============================================================================ #
@@ -174,7 +175,9 @@
   # - fish: installs Fish-related tools and wires shared Fish config          #
   # ========================================================================== #
   ghostty.enable = true; # Turn on Ghostty (system + user config)
+  ghostty.user = primaryUser; # Home Manager user for Ghostty config
   fish.enable = true; # Turn on Fish shell application module (system + user config)
+  fish.user = primaryUser; # Home Manager user for Fish config
 
   # ========================================================================== #
   # DESKTOP ENVIRONMENT                                                        #
@@ -298,26 +301,22 @@
   # ========================================================================== #
   # USER ACCOUNTS                                                              #
   # ========================================================================== #
-  # Define user accounts on the system.                                        #
+  # Primary user is created by this config (default "isaaclins" or set        #
+  # NIX_CONFIG_PRIMARY_USER when building). If only root exists, this user    #
+  # is created.                                                                #
   # ========================================================================== #
   users.users = {
-    # ------------------------------------------------------------------------ #
-    # Primary User                                                             #
-    # ------------------------------------------------------------------------ #
-    # The main user account. Change "isaaclins" to your username.              #
-    # ------------------------------------------------------------------------ #
-    isaaclins = {
-      isNormalUser = true; # Create as a normal (non-system) user
-      description = "Isaac Lins"; # User's full name/description
+    ${primaryUser} = {
+      isNormalUser = true;
+      description = "Primary user";
       extraGroups = [
-        "wheel" # Allow sudo access
-        "networkmanager" # Allow network configuration
-        "audio" # Audio device access
-        "video" # Video device access
-      ]; # End of extraGroups
-    }; # End of isaaclins user
-
-  }; # End of users.users
+        "wheel"
+        "networkmanager"
+        "audio"
+        "video"
+      ];
+    };
+  };
 
   # ========================================================================== #
   # SYSTEM PACKAGES                                                            #
