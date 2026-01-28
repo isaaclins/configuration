@@ -360,7 +360,7 @@
   fonts.packages = with pkgs; [
     noto-fonts # Google Noto fonts (wide language support)
     noto-fonts-cjk-sans # Chinese, Japanese, Korean fonts (sans-serif variant)
-    noto-fonts-emoji # Emoji support
+    noto-fonts-color-emoji # Emoji support (renamed from noto-fonts-emoji)
     liberation_ttf # Liberation fonts (metric-compatible with MS fonts)
     fira-code # Fira Code - programming font with ligatures
     jetbrains-mono # JetBrains Mono - another great programming font
