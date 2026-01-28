@@ -297,23 +297,16 @@
   # ========================================================================== #
   # Configure macOS security settings.                                         #
   # ========================================================================== #
-  security.pam.enableSudoTouchIdAuth = true; # Allow Touch ID for sudo
+  security.pam.services.sudo_local.touchIdAuth = true; # Allow Touch ID for sudo (renamed option)
 
   # ========================================================================== #
-  # SERVICES                                                                   #
+  # PRIMARY USER                                                               #
   # ========================================================================== #
-  # Enable and configure system services.                                      #
+  # nix-darwin now applies certain options (Homebrew, system.defaults, etc.)   #
+  # to a primary user instead of the user running darwin-rebuild.              #
+  # Set this to your macOS username.                                           #
   # ========================================================================== #
-  services = {
-    # ------------------------------------------------------------------------ #
-    # Nix Daemon                                                               #
-    # ------------------------------------------------------------------------ #
-    # The Nix daemon handles builds in multi-user mode.                        #
-    # Required for nix-darwin to function properly.                            #
-    # ------------------------------------------------------------------------ #
-    nix-daemon.enable = true; # Enable the Nix daemon service
-
-  }; # End of services
+  system.primaryUser = "isaac"; # Primary user for nix-darwin-managed settings
 
   # ========================================================================== #
   # SYSTEM STATE VERSION                                                       #
